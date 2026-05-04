@@ -16,9 +16,8 @@
 
 # Go build output
 net-switch
-netenv
-/net-switch
 /netenv
+/net-switch
 
 # Dependency directories
 vendor/
