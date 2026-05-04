@@ -80,11 +80,6 @@ go build -o bin/net-switch ./cmd/netenv/
 
 编译后的二进制文件位于 `bin/` 目录中。
 
-### 方式二：安装 GUI 桌面应用（推荐）
-
-适合喜欢图形界面的用户，提供更直观的操作体验。
-
-
 ## GUI 图形化界面功能
 
 基于 **Tauri v2 + React 18 + TypeScript + Tailwind CSS** 构建的跨平台桌面应用。

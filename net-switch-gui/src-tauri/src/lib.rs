@@ -9,6 +9,11 @@ fn net_switch_dir() -> Option<PathBuf> {
         .and_then(|p| p.parent().map(|pp| pp.to_path_buf()))
         .unwrap_or_else(|| std::env::current_dir().unwrap_or_default());
 
+    let resource_dir = base.join("resources");
+    if resource_dir.join(exe_name).exists() {
+        return Some(resource_dir);
+    }
+
     let offsets = ["../../../net-switch", "../../../../net-switch", "../../net-switch", "../net-switch"];
 
     for offset in &offsets {
@@ -46,6 +51,12 @@ fn find_config_arg() -> Option<String> {
         return Some(home_config);
     }
 
+    ensure_default_config();
+
+    if std::path::Path::new(&home_config).exists() {
+        return Some(home_config);
+    }
+
     None
 }
 
@@ -63,8 +74,30 @@ fn ensure_default_config() {
         return;
     }
     let _ = std::fs::create_dir_all(&config_dir);
-    let default_config = "profiles: []\n";
-    let _ = std::fs::write(&config_path, default_config);
+
+    let default_config = if let Some(dir) = net_switch_dir() {
+        let bundled = dir.join("resources").join("config.default.yaml");
+        if bundled.exists() {
+            std::fs::read_to_string(&bundled).ok()
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let content = default_config.unwrap_or_else(|| {
+        concat!(
+            "version: \"1\"\n",
+            "profiles:\n",
+            "  - name: direct\n",
+            "    description: \"直连（无代理）\"\n",
+            "    http_proxy: \"\"\n",
+            "    https_proxy: \"\"\n",
+        ).to_string()
+    });
+
+    let _ = std::fs::write(&config_path, content);
 }
 
 fn run_net_switch(args: &[&str]) -> Result<String, String> {
@@ -207,6 +240,12 @@ fn find_config_file() -> Result<String, String> {
         .map_err(|_| "Cannot determine home directory")?;
 
     let home_config = format!("{}/.net-switch/config.yaml", home);
+    if std::path::Path::new(&home_config).exists() {
+        return Ok(home_config);
+    }
+
+    ensure_default_config();
+
     if std::path::Path::new(&home_config).exists() {
         return Ok(home_config);
     }
@@ -600,20 +639,47 @@ fn toggle_plugin(name: String, enabled: bool) -> Result<(), String> {
 
 #[tauri::command]
 fn pick_enc_file() -> Result<Option<String>, String> {
-    let script = r#"Add-Type -AssemblyName System.Windows.Forms
+    #[cfg(target_os = "windows")]
+    {
+        let script = r#"Add-Type -AssemblyName System.Windows.Forms
 $dialog = New-Object System.Windows.Forms.OpenFileDialog
 $dialog.Filter = "加密文件 (*.enc)|*.enc|所有文件 (*.*)|*.*"
 $dialog.Title = "选择加密文件"
 if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { $dialog.FileName }"#;
-    let output = std::process::Command::new("powershell")
-        .args(["-NoProfile", "-Command", script])
-        .output()
-        .map_err(|e| format!("Failed to open file dialog: {}", e))?;
-    let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if path.is_empty() {
-        Ok(None)
-    } else {
-        Ok(Some(path))
+        let output = std::process::Command::new("powershell")
+            .args(["-NoProfile", "-Command", script])
+            .output()
+            .map_err(|e| format!("Failed to open file dialog: {}", e))?;
+        let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if path.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(path))
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        let script = r#"tell application "System Events"
+        activate
+    end tell
+    set chosenFile to choose file with prompt "选择加密后的 config.enc 文件" of type {"enc"}
+    POSIX path of chosenFile"#;
+        let output = std::process::Command::new("osascript")
+            .args(["-e", script])
+            .output()
+            .map_err(|e| format!("Failed to open file dialog: {}", e))?;
+        let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if path.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(path))
+        }
+    }
+
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    {
+        Err("File picker is not supported on this platform".to_string())
     }
 }
 

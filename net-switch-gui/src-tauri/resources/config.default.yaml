@@ -1,0 +1,6 @@
+version: "1"
+profiles:
+  - name: direct
+    description: "直连（无代理）"
+    http_proxy: ""
+    https_proxy: ""
