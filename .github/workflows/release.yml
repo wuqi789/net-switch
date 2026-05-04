@@ -19,7 +19,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23"
+          go-version: "1.26"
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -32,7 +32,7 @@ jobs:
           cache-dependency-path: net-switch-gui/package-lock.json
 
       - name: Build Go CLI
-        run: go build -ldflags "-s -w" -o net-switch-gui/src-tauri/resources/net-switch.exe ./cmd/net-switch/
+        run: go build -ldflags "-s -w" -o net-switch-gui/src-tauri/resources/net-switch.exe ./cmd/netenv/
 
       - name: Copy config file
         run: |
@@ -85,7 +85,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23"
+          go-version: "1.26"
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -100,7 +100,7 @@ jobs:
           cache-dependency-path: net-switch-gui/package-lock.json
 
       - name: Build Go CLI
-        run: GOOS=darwin GOARCH=${{ matrix.goarch }} go build -ldflags "-s -w" -o net-switch-gui/src-tauri/resources/net-switch ./cmd/net-switch/
+        run: GOOS=darwin GOARCH=${{ matrix.goarch }} go build -ldflags "-s -w" -o net-switch-gui/src-tauri/resources/net-switch ./cmd/netenv/
 
       - name: Install dependencies
         run: cd net-switch-gui && npm ci
