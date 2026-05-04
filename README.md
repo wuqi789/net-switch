@@ -56,7 +56,18 @@ Current workarounds range from shell aliases and dotfile scripts to platform-spe
 
 ## Quick Start
 
-net-switch provides two installation options, you can choose based on your needs:
+**Install GUI Desktop Application (Recommended)**
+
+Download the installer for your platform from the [Releases](https://github.com/wuqi789/net-switch-gui/releases) page:
+
+| Platform | File | Description |
+|:-----|:-----|:-----|
+| Windows | `NetSwitch_X.Y.Z_x64-setup.exe` | Windows NSIS installer (automatically requests administrator privileges) |
+| macOS (Apple Silicon) | `NetSwitch_X.Y.Z_aarch64.dmg` | For M1/M2/M3/M4 Macs |
+| macOS (Intel) | `NetSwitch_X.Y.Z_x64.dmg` | For Intel-based Macs |
+
+After installation, the app will automatically request the necessary permissions on each launch.
+
 
 ***
 
