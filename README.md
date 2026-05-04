@@ -56,31 +56,17 @@ Current workarounds range from shell aliases and dotfile scripts to platform-spe
 
 ## Quick Start
 
-**1 — Install the CLI (Recommended)**
-
-Download the pre-built binary for your platform from the [Releases](https://github.com/wuqi789/net-switch/releases) page:
-
-| Platform | File |
-|:---------|:-----|
-| Windows  | `windows-x86_64.zip` |
-| macOS (Apple Silicon) | `macos-aarch64-apple-darwin.zip` |
-| macOS (Intel) | `macos-x86_64-apple-darwin.zip` |
-
-Extract the archive and add the binary to your PATH.
-
-**2 — Switch (Administrator privileges)**
-
-```bash
-net-switch use office
-```
-
-That's it. Proxy, DNS, and hosts are now configured for your corporate network.
+net-switch provides two installation options, you can choose based on your needs:
 
 ---
 
 ## Installation
 
-### Download Pre-built Binaries (Recommended)
+### Option 1: Install CLI Command Line Tool
+
+Suitable for users who prefer command-line operations, lightweight and fast.
+
+#### Download Pre-built Binaries (Recommended)
 
 Download the latest release for your platform from the [Releases](https://github.com/wuqi789/net-switch/releases) page:
 
@@ -92,7 +78,7 @@ Download the latest release for your platform from the [Releases](https://github
 
 After downloading, extract the archive and add the binary to your PATH.
 
-### Build from Source
+#### Build from Source
 
 **Prerequisites:**
 - [Go](https://golang.org/) 1.26 or later
@@ -109,7 +95,7 @@ cd net-switch
 make build
 
 # Or build directly with Go
-go build -o bin/netenv ./cmd/netenv/
+go build -o bin/net-switch ./cmd/netenv/
 
 # For cross-platform builds
 make build-all
@@ -119,9 +105,23 @@ make build-all
 
 The compiled binary will be in the `bin/` directory.
 
+### Option 2: Install GUI Desktop Application (Recommended)
+
+Suitable for users who prefer graphical interfaces, providing a more intuitive user experience.
+
+Download the installer for your platform from the [Releases](https://github.com/wuqi789/net-switch-gui/releases) page:
+
+| Platform | File | Description |
+|:---------|:-----|:------------|
+| Windows  | `NetSwitch_X.Y.Z_x64-setup.exe` | Windows NSIS installer (automatically requests administrator privileges) |
+| macOS (Apple Silicon) | `NetSwitch_X.Y.Z_aarch64.dmg` | For M1/M2/M3/M4 Macs |
+| macOS (Intel) | `NetSwitch_X.Y.Z_x64.dmg` | For Intel-based Macs |
+
+After installation, the app will automatically request the necessary permissions on each launch.
+
 ---
 
-## GUI Desktop App (Recommended)
+## GUI Desktop App Features
 
 A cross-platform desktop application built with **Tauri v2 + React 18 + TypeScript + Tailwind CSS**.
 
@@ -195,7 +195,7 @@ Use 'net-switch use <profile>' to switch environment
 JSON output for scripting:
 
 ```bash
-$ netenv list --format json
+$ net-switch list --format json
 [
   {
     "name": "company",
@@ -277,7 +277,7 @@ $ net-switch rules list
   home-wifi    true     SSID: Home-5G   direct
   client-vpn   false    IP: 10.50.0.0/16  client
 
-$ netenv rules test "SSID: CorpNet"
+$ net-switch rules test "SSID: CorpNet"
 ✓ Matched rule: office-wifi → company
 
 $ net-switch rules disable office-wifi
@@ -338,7 +338,7 @@ Commands:    k8s list, k8s switch, k8s current, k8s ns
 
 ```
 --config string    Config file path (default: ./config.yaml or ~/.net-switch/config.yaml)
---dry-run          Preview mode 鈥?show what would change without modifying anything
+--dry-run          Preview mode — show what would change without modifying anything
 --format string    Output format: text or json (default: text)
 ```
 
@@ -369,7 +369,7 @@ profiles:
         hostname: "registry.corp.com"
 
   - name: home
-    description: "Home network 鈥?no proxy"
+    description: "Home network — no proxy"
     http_proxy: ""
     https_proxy: ""
     dns:
@@ -394,7 +394,7 @@ profiles:
         hostname: "cache.staging.internal"
 
   - name: direct
-    description: "Direct connection 鈥?no proxy, system DNS"
+    description: "Direct connection — no proxy, system DNS"
     http_proxy: ""
     https_proxy: ""
 ```
@@ -414,7 +414,7 @@ net-switch's plugin architecture is built around a clean `Plugin` interface with
 ### Plugin Lifecycle
 
 ```
-Init 鈫?Validate 鈫?Apply 鈫?Rollback 鈫?Cleanup
+Init → Validate → Apply → Rollback → Cleanup
 ```
 
 | Phase | When It Runs | Purpose |
@@ -427,7 +427,7 @@ Init 鈫?Validate 鈫?Apply 鈫?Rollback 鈫?Cleanup
 
 ### Inter-Plugin Communication
 
-Plugins communicate through an **EventBus** 鈥?a pub/sub system that decouples plugins from each other. A plugin can emit events (e.g., `profile.switched`) and subscribe to events from other plugins.
+Plugins communicate through an **EventBus** — a pub/sub system that decouples plugins from each other. A plugin can emit events (e.g., `profile.switched`) and subscribe to events from other plugins.
 
 ### Built-in Plugins
 
@@ -495,25 +495,25 @@ type Plugin interface {
 
 | Feature | net-switch | CC-Switch |
 |:--------|:----------:|:---------:|
-| CLI | 鉁?Full-featured | 鉁?Basic |
-| GUI | 鉁?Tauri desktop | 鉂?None |
-| Plugin System | 鉁?Extensible | 鉂?None |
-| Config Encryption | 鉁?AES-256-GCM | 鉂?None |
-| Auto-Switch Rules | 鉁?Domain/IP/SSID | 鉂?None |
-| K8s Integration | 鉁?Context switching | 鉂?None |
-| Team Sync | 鉁?REST API | 鉂?None |
-| OAuth2 Auth | 鉁?PKCE flow | 鉂?None |
-| Cross-Platform | 鉁?Win/Mac/Linux | 鈿狅笍 Partial |
-| Config Format | 鉁?YAML | 鈿狅笍 JSON |
-| Dry-Run Mode | 鉁?Built-in | 鉂?None |
-| JSON Output | 鉁?All commands | 鉂?None |
-| Open Source | 鉁?MIT | 鈿狅笍 Mixed |
+| CLI | ✅ Full-featured | ✅ Basic |
+| GUI | ✅ Tauri desktop | ❌ None |
+| Plugin System | ✅ Extensible | ❌ None |
+| Config Encryption | ✅ AES-256-GCM | ❌ None |
+| Auto-Switch Rules | ✅ Domain/IP/SSID | ❌ None |
+| K8s Integration | ✅ Context switching | ❌ None |
+| Team Sync | ✅ REST API | ❌ None |
+| OAuth2 Auth | ✅ PKCE flow | ❌ None |
+| Cross-Platform | ✅ Win/Mac/Linux | ⚠️ Partial |
+| Config Format | ✅ YAML | ⚠️ JSON |
+| Dry-Run Mode | ✅ Built-in | ❌ None |
+| JSON Output | ✅ All commands | ❌ None |
+| Open Source | ✅ MIT | ⚠️ Mixed |
 
 ---
 
 ## Contributing
 
-We welcome contributions of all kinds 鈥?bug reports, feature requests, documentation, and code.
+We welcome contributions of all kinds — bug reports, feature requests, documentation, and code.
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a pull request. It covers:
 
@@ -542,7 +542,7 @@ go test ./...
 
 ## License
 
-This project is licensed under the **MIT License** 鈥?see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ```
 MIT License
@@ -563,13 +563,13 @@ copies or substantial portions of the Software.
 ---
 
 <p align="center">
-  Made with 鉂わ笍 by <a href="https://github.com/netenv">netenv</a>
+  Made with ❤️ by <a href="https://github.com/netenv">netenv</a>
   <br/><br/>
-  <a href="https://github.com/wuqi789/net-switch/stargazers">猸?Star us on GitHub</a> &bull;
+  <a href="https://github.com/wuqi789/net-switch/stargazers">⭐ Star us on GitHub</a> &bull;
   <a href="https://github.com/wuqi789/net-switch/issues">Report a Bug</a> &bull;
   <a href="https://github.com/wuqi789/net-switch/discussions">Join the Discussion</a>
 </p>
 
 <p align="center">
-  <strong>Developer: 鍚存</strong> &bull; <a href="mailto:wuqi173@outlook.com">wuqi173@outlook.com</a>
+  <strong>Developer: 吴棋</strong> &bull; <a href="mailto:wuqi173@outlook.com">wuqi173@outlook.com</a>
 </p>

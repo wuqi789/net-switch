@@ -57,24 +57,17 @@
 
 ## 快速开始
 
-**  安装 GUI 桌面应用（推荐）**
-
-从 [Releases](https://github.com/wuqi789/net-switch-gui/releases) 页面下载对应平台的安装包，一键安装：
-
-| 平台 | 文件 | 说明 |
-|:-----|:-----|:-----|
-| Windows | `NetSwitch_X.Y.Z_x64-setup.exe` | Windows NSIS 安装程序（自动请求管理员权限） |
-| macOS（Apple Silicon） | `NetSwitch_X.Y.Z_aarch64.dmg` | 适用于 M1/M2/M3/M4 芯片的 Mac |
-| macOS（Intel） | `NetSwitch_X.Y.Z_x64.dmg` | 适用于 Intel 芯片的 Mac |
-
-安装完成后，应用每次启动时会自动请求所需的系统权限。
-
+net-switch 提供两种使用方式，您可以根据需求选择：
 
 ***
 
 ## 安装
 
-### 下载预编译二进制文件(推荐)
+### 方式一：安装 CLI 命令行工具
+
+适合喜欢命令行操作的用户，轻量且快速。
+
+#### 下载预编译二进制文件(推荐)
 
 从 [Releases](https://github.com/wuqi789/net-switch/releases) 页面下载对应平台的最新版本:
 
@@ -86,11 +79,10 @@
 
 下载后解压缩,将二进制文件添加到PATH中即可使用。
 
-### 从源码构建
+#### 从源码构建
 
 **前置条件:**
 - [Go](https://golang.org/) 1.26 或更高版本
-- [Make](https://www.gnu.org/software/make/) (可选,用于使用Makefile)
 
 **步骤:**
 
@@ -99,23 +91,29 @@
 git clone https://github.com/wuqi789/net-switch.git
 cd net-switch
 
-# 使用Make构建(推荐)
-make build
-
-# 或直接使用Go构建
-go build -o bin/netenv ./cmd/netenv/
-
-# 跨平台构建
-make build-all
-# 或使用构建脚本
-./scripts/build.sh
+# 直接使用Go构建
+go build -o bin/net-switch ./cmd/netenv/
 ```
 
 编译后的二进制文件位于 `bin/` 目录中。
 
+### 方式二：安装 GUI 桌面应用（推荐）
+
+适合喜欢图形界面的用户，提供更直观的操作体验。
+
+从 [Releases](https://github.com/wuqi789/net-switch-gui/releases) 页面下载对应平台的安装包，一键安装：
+
+| 平台 | 文件 | 说明 |
+|:-----|:-----|:-----|
+| Windows | `NetSwitch_X.Y.Z_x64-setup.exe` | Windows NSIS 安装程序（自动请求管理员权限） |
+| macOS（Apple Silicon） | `NetSwitch_X.Y.Z_aarch64.dmg` | 适用于 M1/M2/M3/M4 芯片的 Mac |
+| macOS（Intel） | `NetSwitch_X.Y.Z_x64.dmg` | 适用于 Intel 芯片的 Mac |
+
+安装完成后，应用每次启动时会自动请求所需的系统权限。
+
 ***
 
-## GUI 图形化界面（推荐）
+## GUI 图形化界面功能
 
 基于 **Tauri v2 + React 18 + TypeScript + Tailwind CSS** 构建的跨平台桌面应用。
 
@@ -168,7 +166,7 @@ npm run tauri dev
 ### 列出配置文件
 
 ```bash
-$ netenv list
+$ net-switch list
 可用的网络环境:
 ─────────────────────────────────────
 ▸ company  -  公司内网环境
@@ -199,7 +197,7 @@ $ net-switch list --format json
 ### 预览模式切换
 
 ```bash
-$ netenv use company --dry-run
+$ net-switch use company --dry-run
 [DRY-RUN] Would apply profile: company
   HTTP_PROXY:  http://proxy.company.com:8080
   HTTPS_PROXY: http://proxy.company.com:8080
@@ -211,7 +209,7 @@ $ netenv use company --dry-run
 ### 正式切换
 
 ```bash
-$ netenv use company
+$ net-switch use company
 ✓ 已切换到: company
   描述: 公司内网环境
   HTTP_PROXY:  http://proxy.company.com:8080
@@ -224,14 +222,14 @@ $ netenv use company
 ### 查看当前配置
 
 ```bash
-$ netenv current
+$ net-switch current
 Current profile: company
 ```
 
 ### 系统状态
 
 ```bash
-$ netenv status
+$ net-switch status
 Profile: company
 HTTP Proxy: http://proxy.company.com:8080
 HTTPS Proxy: http://proxy.company.com:8080
@@ -242,49 +240,49 @@ Hosts entries: 2
 ### 恢复上一次的状态
 
 ```bash
-$ netenv restore
+$ net-switch restore
 ✓ 已恢复到上一次的网络配置
 ```
 
 ### 加密 / 解密配置
 
 ```bash
-$ netenv encrypt
+$ net-switch encrypt
 ✓ 配置已加密（AES-256-GCM）
 
-$ netenv decrypt
+$ net-switch decrypt
 ✓ 配置已解密
 ```
 
 ### 自动切换规则
 
 ```bash
-$ netenv rules list
+$ net-switch rules list
   NAME         ENABLED  TRIGGER         PROFILE
   office-wifi  true     SSID: CorpNet   company
   home-wifi    true     SSID: Home-5G   direct
   client-vpn   false    IP: 10.50.0.0/16  client
 
-$ netenv rules test "SSID: CorpNet"
+$ net-switch rules test "SSID: CorpNet"
 ✓ Matched rule: office-wifi → company
 
-$ netenv rules disable office-wifi
+$ net-switch rules disable office-wifi
 ✓ Rule disabled: office-wifi
 ```
 
 ### 团队同步
 
 ```bash
-$ netenv auth login
+$ net-switch auth login
 ✓ Logged in as: dev@company.com
 
-$ netenv sync pull
+$ net-switch sync pull
 ✓ Pulled 3 profiles from team server
   company (updated)
   staging (new)
   prod    (conflict — merged)
 
-$ netenv sync push
+$ net-switch sync push
 ✓ Pushed 1 profile to team server
   home-dev (created)
 ```
@@ -292,28 +290,28 @@ $ netenv sync push
 ### Kubernetes 上下文管理
 
 ```bash
-$ netenv k8s list
+$ net-switch k8s list
   CONTEXT            CLUSTER       NAMESPACE   CURRENT
   minikube           minikube      default     ✓
   prod-cluster       eks-prod      kube-system
   staging-cluster    eks-staging   default
 
-$ netenv k8s switch prod-cluster
+$ net-switch k8s switch prod-cluster
 ✓ kubectl context switched to: prod-cluster
 
-$ netenv k8s ns monitoring
+$ net-switch k8s ns monitoring
 ✓ Namespace set to: monitoring
 ```
 
 ### 插件管理
 
 ```bash
-$ netenv plugin list
+$ net-switch plugin list
   PLUGIN   VERSION  STATUS    DESCRIPTION
   k8s      0.1.0    active    Kubernetes context and namespace management
   echo     0.1.0    active    Example plugin that echoes profile switches
 
-$ netenv plugin info k8s
+$ net-switch plugin info k8s
 Name:        k8s-plugin
 Version:     0.1.0
 Author:      netenv
