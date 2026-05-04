@@ -1,10 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/netenv/netenv/internal/config"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 var currentCmd = &cobra.Command{
@@ -17,11 +22,55 @@ var currentCmd = &cobra.Command{
 		}
 
 		if cfg.Global.DefaultProfile == "" {
+			if outputFmt == "json" {
+				fmt.Println(`{"current_profile":"","description":"","http_proxy":"","https_proxy":"","no_proxy":"","dns":null,"hosts":[]}`)
+				return nil
+			}
 			fmt.Println("No active profile. Use 'netenv switch <profile>' to activate one.")
 			return nil
 		}
 
-		fmt.Printf("Active profile: %s\n", cfg.Global.DefaultProfile)
+		profileName := cfg.Global.DefaultProfile
+
+		if outputFmt == "json" {
+			profilesDir := config.GetProfilesDir()
+			profilePath := filepath.Join(profilesDir, profileName+".yaml")
+			var p config.Profile
+			if data, err := os.ReadFile(profilePath); err == nil {
+				_ = yaml.Unmarshal(data, &p)
+			}
+
+			noProxy := ""
+			if len(p.Proxy.NoProxy) > 0 {
+				noProxy = strings.Join(p.Proxy.NoProxy, ",")
+			}
+
+			var dnsInfo interface{}
+			if p.DNS.Enabled {
+				dnsInfo = map[string]interface{}{"servers": p.DNS.Servers}
+			}
+
+			var hosts []map[string]string
+			for _, h := range p.Hosts.Entries {
+				hosts = append(hosts, map[string]string{"ip": h.IP, "hostname": h.Hostname})
+			}
+
+			result := map[string]interface{}{
+				"current_profile": profileName,
+				"description":     p.Description,
+				"http_proxy":      p.Proxy.HTTP,
+				"https_proxy":     p.Proxy.HTTPS,
+				"no_proxy":        noProxy,
+				"dns":             dnsInfo,
+				"hosts":           hosts,
+			}
+
+			output, _ := json.Marshal(result)
+			fmt.Println(string(output))
+			return nil
+		}
+
+		fmt.Printf("Active profile: %s\n", profileName)
 		return nil
 	},
 }

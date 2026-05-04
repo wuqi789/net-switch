@@ -8,10 +8,11 @@ import (
 )
 
 var (
-	verbose   bool
-	dryRun    bool
-	noColor   bool
+	verbose    bool
+	dryRun     bool
+	noColor    bool
 	configFile string
+	outputFmt  string
 )
 
 var rootCmd = &cobra.Command{
@@ -25,6 +26,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "Preview changes without applying")
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "Config file path (default: ~/.netenv/config.yaml)")
+	rootCmd.PersistentFlags().StringVar(&outputFmt, "format", "", "Output format: json or text")
 
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(listCmd)

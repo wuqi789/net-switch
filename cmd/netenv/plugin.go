@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/netenv/netenv/internal/plugin"
@@ -20,7 +21,29 @@ var pluginListCmd = &cobra.Command{
 		plugins := reg.List()
 
 		if len(plugins) == 0 {
+			if outputFmt == "json" {
+				fmt.Println("[]")
+				return nil
+			}
 			fmt.Println("No plugins registered.")
+			return nil
+		}
+
+		if outputFmt == "json" {
+			var list []map[string]interface{}
+			for _, p := range plugins {
+				list = append(list, map[string]interface{}{
+					"name":        p.Name(),
+					"version":     p.Version(),
+					"author":      "",
+					"description": "",
+					"enabled":     true,
+					"permissions": []string{},
+					"commands":    []string{},
+				})
+			}
+			output, _ := json.Marshal(list)
+			fmt.Println(string(output))
 			return nil
 		}
 
