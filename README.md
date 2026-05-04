@@ -39,7 +39,7 @@ Current workarounds range from shell aliases and dotfile scripts to platform-spe
 
 | Feature | Description |
 |:--------|:------------|
-| ⚡ **One-Command Switch** | Set proxy, DNS, hosts, and env vars in a single `netenv use <profile>` |
+| ⚡ **One-Command Switch** | Set proxy, DNS, hosts, and env vars in a single `net-switch use <profile>` |
 | 🔌 **Plugin System** | Interface-based architecture with EventBus, lifecycle hooks, and manifest-driven loading |
 | 🔒 **Config Encryption** | AES-256-GCM field-level encryption with PBKDF2 key derivation — secrets stay safe at rest |
 | 🔄 **Auto-Switch Rules** | Trigger profile changes on domain, IP, SSID, or process detection |
@@ -71,7 +71,7 @@ Extract the archive and add the binary to your PATH.
 **2 — Switch (Administrator privileges)**
 
 ```bash
-netenv use office
+net-switch use office
 ```
 
 That's it. Proxy, DNS, and hosts are now configured for your corporate network.
@@ -181,7 +181,7 @@ Then open `http://localhost:5173` in your browser.
 ### List Profiles
 
 ```bash
-$ netenv list
+$ net-switch list
 Available network environments:
 ─────────────────────────────────────
 ▸ company  -  Corporate network
@@ -189,7 +189,7 @@ Available network environments:
   test     -  Test environment
   direct   -  Direct connection (no proxy)
 ─────────────────────────────────────
-Use 'netenv use <profile>' to switch environment
+Use 'net-switch use <profile>' to switch environment
 ```
 
 JSON output for scripting:
@@ -212,7 +212,7 @@ $ netenv list --format json
 ### Switch with Preview (Dry-Run)
 
 ```bash
-$ netenv use company --dry-run
+$ net-switch use company --dry-run
 [DRY-RUN] Would apply profile: company
   HTTP_PROXY:  http://proxy.company.com:8080
   HTTPS_PROXY: http://proxy.company.com:8080
@@ -224,7 +224,7 @@ $ netenv use company --dry-run
 ### Switch for Real
 
 ```bash
-$ netenv use company
+$ net-switch use company
 ✓ Switched to: company
   Description: Corporate network
   HTTP_PROXY:  http://proxy.company.com:8080
@@ -237,14 +237,14 @@ $ netenv use company
 ### Check Current Profile
 
 ```bash
-$ netenv current
+$ net-switch current
 Current profile: company
 ```
 
 ### System Status
 
 ```bash
-$ netenv status
+$ net-switch status
 Profile: company
 HTTP Proxy: http://proxy.company.com:8080
 HTTPS Proxy: http://proxy.company.com:8080
@@ -255,23 +255,23 @@ Hosts entries: 2
 ### Restore Previous State
 
 ```bash
-$ netenv restore
+$ net-switch restore
 ✓ Restored to previous network configuration
 ```
 
 ### Encrypt / Decrypt Config
 
 ```bash
-$ netenv encrypt
+$ net-switch encrypt
 ✓ Configuration encrypted (AES-256-GCM)
-$ netenv decrypt
+$ net-switch decrypt
 ✓ Configuration decrypted
 ```
 
 ### Auto-Switch Rules
 
 ```bash
-$ netenv rules list
+$ net-switch rules list
   NAME         ENABLED  TRIGGER         PROFILE
   office-wifi  true     SSID: CorpNet   company
   home-wifi    true     SSID: Home-5G   direct
@@ -280,23 +280,23 @@ $ netenv rules list
 $ netenv rules test "SSID: CorpNet"
 ✓ Matched rule: office-wifi → company
 
-$ netenv rules disable office-wifi
+$ net-switch rules disable office-wifi
 ✓ Rule disabled: office-wifi
 ```
 
 ### Team Sync
 
 ```bash
-$ netenv auth login
+$ net-switch auth login
 ✓ Logged in as: dev@company.com
 
-$ netenv sync pull
+$ net-switch sync pull
 ✓ Pulled 3 profiles from team server
   company (updated)
   staging (new)
   prod    (conflict — merged)
 
-$ netenv sync push
+$ net-switch sync push
 ✓ Pushed 1 profile to team server
   home-dev (created)
 ```
@@ -304,28 +304,28 @@ $ netenv sync push
 ### Kubernetes Context Management
 
 ```bash
-$ netenv k8s list
+$ net-switch k8s list
   CONTEXT            CLUSTER       NAMESPACE   CURRENT
   minikube           minikube      default     ✓
   prod-cluster       eks-prod      kube-system
   staging-cluster    eks-staging   default
 
-$ netenv k8s switch prod-cluster
+$ net-switch k8s switch prod-cluster
 ✓ kubectl context switched to: prod-cluster
 
-$ netenv k8s ns monitoring
+$ net-switch k8s ns monitoring
 ✓ Namespace set to: monitoring
 ```
 
 ### Plugin Management
 
 ```bash
-$ netenv plugin list
+$ net-switch plugin list
   PLUGIN   VERSION  STATUS    DESCRIPTION
   k8s      0.1.0    active    Kubernetes context and namespace management
   echo     0.1.0    active    Example plugin that echoes profile switches
 
-$ netenv plugin info k8s
+$ net-switch plugin info k8s
 Name:        k8s-plugin
 Version:     0.1.0
 Author:      netenv
