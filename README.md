@@ -1,4 +1,4 @@
-﻿﻿<p align="center">
+﻿<p align="center">
   <br/>
   <img src="docs/images/logo.png" alt="net-switch" width="180" />
   <br/><br/>
@@ -94,29 +94,44 @@ That's it. Proxy, DNS, and hosts are now configured for your corporate network.
 
 ## Installation
 
-### Go Install (recommended)
+### Download Pre-built Binaries (Recommended)
 
-```bash
-go install github.com/wuqi789/net-switch/cmd/net-switch@latest
-```
+Download the latest release for your platform from the [Releases](https://github.com/wuqi789/net-switch/releases) page:
 
-### Binary Download
+| Platform | Architecture | File |
+|:---|:-------------|:-----|
+| Windows | amd64 | `windows-x86_64.zip` |
+| macOS (Apple Silicon) | arm64 | `macos-aarch64-apple-darwin.zip` |
+| macOS (Intel) | amd64 | `macos-x86_64-apple-darwin.zip` |
 
-Download pre-built binaries from the [Releases](https://github.com/wuqi789/net-switch/releases) page. Available for:
-
-| OS | Architecture | Format |
-|:---|:-------------|:-------|
-| Linux | amd64, arm64 | `.tar.gz` |
-| macOS | amd64, arm64 | `.tar.gz` |
-| Windows | amd64 | `.zip` |
+After downloading, extract the archive and add the binary to your PATH.
 
 ### Build from Source
 
+**Prerequisites:**
+- [Go](https://golang.org/) 1.26 or later
+- [Make](https://www.gnu.org/software/make/) (optional, for using Makefile)
+
+**Steps:**
+
 ```bash
+# Clone the repository
 git clone https://github.com/wuqi789/net-switch.git
 cd net-switch
-go build -o net-switch ./cmd/net-switch
+
+# Build using Make (recommended)
+make build
+
+# Or build directly with Go
+go build -o bin/netenv ./cmd/netenv/
+
+# For cross-platform builds
+make build-all
+# Or use the build script
+./scripts/build.sh
 ```
+
+The compiled binary will be in the `bin/` directory.
 
 ---
 

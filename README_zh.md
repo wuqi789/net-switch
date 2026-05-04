@@ -80,19 +80,44 @@
 
 ## 安装
 
-### Go Install（推荐）
+### 下载预编译二进制文件(推荐)
+
+从 [Releases](https://github.com/wuqi789/net-switch/releases) 页面下载对应平台的最新版本:
+
+| 平台 | 架构 | 文件 |
+|:---|:-------------|:-----|
+| Windows | amd64 | `windows-x86_64.zip` |
+| macOS (Apple Silicon) | arm64 | `macos-aarch64-apple-darwin.zip` |
+| macOS (Intel) | amd64 | `macos-x86_64-apple-darwin.zip` |
+
+下载后解压缩,将二进制文件添加到PATH中即可使用。
+
+### 从源码构建
+
+**前置条件:**
+- [Go](https://golang.org/) 1.26 或更高版本
+- [Make](https://www.gnu.org/software/make/) (可选,用于使用Makefile)
+
+**步骤:**
 
 ```bash
-go install github.com/wuqi789/net-switch/cmd/net-switch@latest
-```
-
-### 源码编译
-
-```bash
+# 克隆仓库
 git clone https://github.com/wuqi789/net-switch.git
 cd net-switch
-go build -o net-switch ./cmd/net-switch
+
+# 使用Make构建(推荐)
+make build
+
+# 或直接使用Go构建
+go build -o bin/netenv ./cmd/netenv/
+
+# 跨平台构建
+make build-all
+# 或使用构建脚本
+./scripts/build.sh
 ```
+
+编译后的二进制文件位于 `bin/` 目录中。
 
 ***
 
