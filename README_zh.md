@@ -108,23 +108,28 @@ go build -o bin/net-switch ./cmd/netenv/
 
 ### 应用截图
 
-#### 应用首页
-![应用首页](images/应用首页.png)
-
-#### 团队同步
-![团队同步](images/团队同步.png)
-
-#### 配置文件加密
-![配置文件加密](images/安全-配置文件加密.png)
-
-#### 插件管理
-![插件管理](images/插件.png)
-
-#### 自动规则
-![自动规则](images/自动规则.png)
-
-#### 配置管理
-![配置管理](images/设置-配置config文件.png)
+<table>
+  <tr>
+    <td align="center"><b>应用首页</b></td>
+    <td align="center"><b>团队同步</b></td>
+    <td align="center"><b>配置文件加密</b></td>
+  </tr>
+  <tr>
+    <td><img src="images/应用首页.png" width="250"/></td>
+    <td><img src="images/团队同步.png" width="250"/></td>
+    <td><img src="images/安全-配置文件加密.png" width="250"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>插件管理</b></td>
+    <td align="center"><b>自动规则</b></td>
+    <td align="center"><b>配置管理</b></td>
+  </tr>
+  <tr>
+    <td><img src="images/插件.png" width="250"/></td>
+    <td><img src="images/自动规则.png" width="250"/></td>
+    <td><img src="images/设置-配置config文件.png" width="250"/></td>
+  </tr>
+</table>
 
 ### 运行 GUI
 

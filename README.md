@@ -105,23 +105,28 @@ A cross-platform desktop application built with **Tauri v2 + React 18 + TypeScri
 
 ### Screenshots
 
-#### Application Home
-![Application Home](images/应用首页.png)
-
-#### Team Sync
-![Team Sync](images/团队同步.png)
-
-#### Config Encryption
-![Config Encryption](images/安全-配置文件加密.png)
-
-#### Plugin Management
-![Plugin Management](images/插件.png)
-
-#### Auto Rules
-![Auto Rules](images/自动规则.png)
-
-#### Configuration Management
-![Configuration Management](images/设置-配置config文件.png)
+<table>
+  <tr>
+    <td align="center"><b>Application Home</b></td>
+    <td align="center"><b>Team Sync</b></td>
+    <td align="center"><b>Config Encryption</b></td>
+  </tr>
+  <tr>
+    <td><img src="images/应用首页.png" width="250"/></td>
+    <td><img src="images/团队同步.png" width="250"/></td>
+    <td><img src="images/安全-配置文件加密.png" width="250"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Plugin Management</b></td>
+    <td align="center"><b>Auto Rules</b></td>
+    <td align="center"><b>Configuration</b></td>
+  </tr>
+  <tr>
+    <td><img src="images/插件.png" width="250"/></td>
+    <td><img src="images/自动规则.png" width="250"/></td>
+    <td><img src="images/设置-配置config文件.png" width="250"/></td>
+  </tr>
+</table>
 
 ### Running the GUI
 
