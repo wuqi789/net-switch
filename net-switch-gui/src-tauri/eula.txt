@@ -1,0 +1,43 @@
+MIT License
+
+Copyright (c) 2024-2026 netenv
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+NetSwitch - Network Environment Switcher
+
+By installing this software, you agree to the following terms:
+
+1. This software requires Administrator privileges to modify system network
+   settings (proxy, DNS, hosts file). The application will request elevated
+   permissions each time it starts.
+
+2. The software may modify Windows system environment variables, hosts file,
+   and DNS settings when switching network profiles.
+
+3. Your configuration data is stored locally on your machine. No data is
+   collected or transmitted without your explicit consent.
+
+4. This software is provided as-is without any guarantees. Use it at your
+   own risk.
+
+Developer: Wu Qi (wuqi173@outlook.com)
+Project: https://github.com/wuqi789/net-switch

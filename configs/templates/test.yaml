@@ -1,0 +1,33 @@
+name: test
+description: "测试环境"
+
+proxy:
+  enabled: true
+  http: "http://test-proxy.company.com:3128"
+  https: "http://test-proxy.company.com:3128"
+  no_proxy:
+    - "localhost"
+    - "127.0.0.1"
+
+dns:
+  enabled: true
+  servers:
+    - "10.20.0.1"
+  search_domains:
+    - "test.company.com"
+
+hosts:
+  enabled: true
+  entries:
+    - ip: "10.20.1.100"
+      hostname: "api.test.company.com"
+      comment: "测试 API"
+    - ip: "10.20.1.101"
+      hostname: "web.test.company.com"
+      comment: "测试 Web"
+
+env_vars:
+  enabled: true
+  variables:
+    APP_ENV: "test"
+    API_BASE_URL: "http://api.test.company.com"

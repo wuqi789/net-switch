@@ -1,0 +1,21 @@
+name: vpn
+description: "VPN 环境"
+
+proxy:
+  enabled: false
+
+dns:
+  enabled: true
+  servers:
+    - "10.10.0.1"
+    - "10.10.0.2"
+  search_domains:
+    - "vpn.company.com"
+
+hosts:
+  enabled: false
+
+env_vars:
+  enabled: true
+  variables:
+    VPN_CONNECTED: "true"

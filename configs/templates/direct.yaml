@@ -1,0 +1,21 @@
+name: direct
+description: "直连环境（无代理）"
+
+proxy:
+  enabled: false
+
+dns:
+  enabled: true
+  servers:
+    - "8.8.8.8"
+    - "8.8.4.4"
+
+hosts:
+  enabled: false
+
+env_vars:
+  enabled: true
+  variables:
+    HTTP_PROXY: ""
+    HTTPS_PROXY: ""
+    NO_PROXY: ""

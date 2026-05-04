@@ -1,0 +1,42 @@
+project_name: netenv
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: netenv
+    main: ./cmd/netenv/
+    binary: netenv
+    ldflags:
+      - -s -w
+      - -X github.com/netenv/netenv/pkg/version.Version={{.Version}}
+      - -X github.com/netenv/netenv/pkg/version.BuildTime={{.Date}}
+      - -X github.com/netenv/netenv/pkg/version.GitCommit={{.ShortCommit}}
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: default
+    format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"

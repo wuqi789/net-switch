@@ -1,0 +1,38 @@
+name: company
+description: "公司内网环境"
+
+proxy:
+  enabled: true
+  http: "http://proxy.company.com:8080"
+  https: "http://proxy.company.com:8080"
+  no_proxy:
+    - "localhost"
+    - "127.0.0.1"
+    - "*.internal.company.com"
+    - "10.0.0.0/8"
+
+dns:
+  enabled: true
+  servers:
+    - "10.0.0.1"
+    - "10.0.0.2"
+  search_domains:
+    - "company.com"
+    - "internal.company.com"
+
+hosts:
+  enabled: true
+  entries:
+    - ip: "10.0.1.100"
+      hostname: "api.internal.company.com"
+      comment: "内部 API 服务"
+    - ip: "10.0.1.101"
+      hostname: "db.internal.company.com"
+      comment: "数据库服务器"
+
+env_vars:
+  enabled: true
+  variables:
+    HTTP_PROXY: "http://proxy.company.com:8080"
+    HTTPS_PROXY: "http://proxy.company.com:8080"
+    NO_PROXY: "localhost,127.0.0.1,.internal.company.com"

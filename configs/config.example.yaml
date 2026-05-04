@@ -1,0 +1,13 @@
+version: "1"
+default_profile: ""
+log_level: "info"
+color: true
+
+backup:
+  enabled: true
+  max_history: 20
+  directory: "~/.netenv/state"
+
+plugins:
+  directory: "~/.netenv/plugins"
+  enabled: []
