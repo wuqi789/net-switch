@@ -74,7 +74,18 @@ func GetNetenvDir() string {
 			home = os.Getenv("HOME")
 		}
 	}
-	return filepath.Join(home, ".netenv")
+
+	switchDir := filepath.Join(home, ".net-switch")
+	if _, err := os.Stat(filepath.Join(switchDir, "config.yaml")); err == nil {
+		return switchDir
+	}
+
+	netenvDir := filepath.Join(home, ".netenv")
+	if _, err := os.Stat(filepath.Join(netenvDir, "config.yaml")); err == nil {
+		return netenvDir
+	}
+
+	return switchDir
 }
 
 func GetProfilesDir() string {
