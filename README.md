@@ -58,7 +58,7 @@ Current workarounds range from shell aliases and dotfile scripts to platform-spe
 
 net-switch provides two installation options, you can choose based on your needs:
 
----
+***
 
 ## Installation
 
@@ -66,23 +66,10 @@ net-switch provides two installation options, you can choose based on your needs
 
 Suitable for users who prefer command-line operations, lightweight and fast.
 
-#### Download Pre-built Binaries (Recommended)
-
-Download the latest release for your platform from the [Releases](https://github.com/wuqi789/net-switch/releases) page:
-
-| Platform | Architecture | File |
-|:---|:-------------|:-----|
-| Windows | amd64 | `windows-x86_64.zip` |
-| macOS (Apple Silicon) | arm64 | `macos-aarch64-apple-darwin.zip` |
-| macOS (Intel) | amd64 | `macos-x86_64-apple-darwin.zip` |
-
-After downloading, extract the archive and add the binary to your PATH.
-
 #### Build from Source
 
 **Prerequisites:**
 - [Go](https://golang.org/) 1.26 or later
-- [Make](https://www.gnu.org/software/make/) (optional, for using Makefile)
 
 **Steps:**
 
@@ -91,16 +78,8 @@ After downloading, extract the archive and add the binary to your PATH.
 git clone https://github.com/wuqi789/net-switch.git
 cd net-switch
 
-# Build using Make (recommended)
-make build
-
-# Or build directly with Go
+# Build directly with Go
 go build -o bin/net-switch ./cmd/netenv/
-
-# For cross-platform builds
-make build-all
-# Or use the build script
-./scripts/build.sh
 ```
 
 The compiled binary will be in the `bin/` directory.
@@ -109,30 +88,9 @@ The compiled binary will be in the `bin/` directory.
 
 Suitable for users who prefer graphical interfaces, providing a more intuitive user experience.
 
-Download the installer for your platform from the [Releases](https://github.com/wuqi789/net-switch-gui/releases) page:
-
-| Platform | File | Description |
-|:---------|:-----|:------------|
-| Windows  | `NetSwitch_X.Y.Z_x64-setup.exe` | Windows NSIS installer (automatically requests administrator privileges) |
-| macOS (Apple Silicon) | `NetSwitch_X.Y.Z_aarch64.dmg` | For M1/M2/M3/M4 Macs |
-| macOS (Intel) | `NetSwitch_X.Y.Z_x64.dmg` | For Intel-based Macs |
-
-After installation, the app will automatically request the necessary permissions on each launch.
-
----
-
 ## GUI Desktop App Features
 
 A cross-platform desktop application built with **Tauri v2 + React 18 + TypeScript + Tailwind CSS**.
-
-Features include:
-- Visual profile management with status indicators
-- Real-time network status monitoring dashboard
-- Team sync panel for pulling and pushing profiles
-- Encrypted config editing with a built-in YAML editor
-- Auto-switch rule configuration with visual triggers
-- Plugin management with lifecycle visualization
-- Dark and light theme support
 
 ### Running the GUI
 
@@ -166,13 +124,16 @@ npm run tauri dev
 
 The first launch compiles the Rust backend and may take a few minutes. Subsequent launches use incremental compilation and are much faster.
 
-To preview the frontend UI only (without native features):
+***
 
-```bash
-npm run dev
-```
-
-Then open `http://localhost:5173` in your browser.
+Features include:
+- Visual profile management with status indicators
+- Real-time network status monitoring dashboard
+- Team sync panel for pulling and pushing profiles
+- Encrypted config editing with a built-in YAML editor
+- Auto-switch rule configuration with visual triggers
+- Plugin management with lifecycle visualization
+- Dark and light theme support
 
 ---
 
