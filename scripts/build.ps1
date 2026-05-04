@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$BINARY_NAME = "netenv"
+$BINARY_NAME = "net-switch"
 $VERSION = if ($env:VERSION) { $env:VERSION } else { "dev" }
 $BUILD_TIME = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 $LDFLAGS = "-X github.com/netenv/netenv/pkg/version.Version=$VERSION -X github.com/netenv/netenv/pkg/version.BuildTime=$BUILD_TIME"

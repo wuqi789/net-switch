@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BINARY_NAME="netenv"
+BINARY_NAME="net-switch"
 VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
 BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 LDFLAGS="-X github.com/netenv/netenv/pkg/version.Version=${VERSION} -X github.com/netenv/netenv/pkg/version.BuildTime=${BUILD_TIME}"

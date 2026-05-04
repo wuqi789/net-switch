@@ -1,4 +1,4 @@
-BINARY_NAME=netenv
+BINARY_NAME=net-switch
 VERSION?=$(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 BUILD_TIME=$(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 GOFLAGS=-ldflags "-X github.com/netenv/netenv/pkg/version.Version=$(VERSION) -X github.com/netenv/netenv/pkg/version.BuildTime=$(BUILD_TIME)"
