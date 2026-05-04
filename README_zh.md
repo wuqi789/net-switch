@@ -55,26 +55,9 @@
 
 ***
 
-## 快速开始
-
-**  安装 GUI 桌面应用（推荐）**
-
-从 [Releases](https://github.com/wuqi789/net-switch-gui/releases) 页面下载对应平台的安装包，一键安装：
-
-| 平台 | 文件 | 说明 |
-|:-----|:-----|:-----|
-| Windows | `NetSwitch_X.Y.Z_x64-setup.exe` | Windows NSIS 安装程序（自动请求管理员权限） |
-| macOS（Apple Silicon） | `NetSwitch_X.Y.Z_aarch64.dmg` | 适用于 M1/M2/M3/M4 芯片的 Mac |
-| macOS（Intel） | `NetSwitch_X.Y.Z_x64.dmg` | 适用于 Intel 芯片的 Mac |
-
-安装完成后，应用每次启动时会自动请求所需的系统权限。
-
-
-***
-
 ## 安装
 
-### 方式一：安装 CLI 命令行工具
+### 方式一：从源码构建 CLI 命令行工具
 
 适合喜欢命令行操作的用户，轻量且快速。
 
