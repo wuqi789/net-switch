@@ -140,8 +140,8 @@ The GUI source lives in a separate repository `net-switch-gui`:
 
 ```
 github.com/wuqi789/
-鈹溾攢鈹€ net-switch/          # CLI project (this repo)
-鈹斺攢鈹€ net-switch-gui/      # GUI project (separate repo)
+├── net-switch/          # CLI project (this repo)
+└── net-switch-gui/      # GUI project (separate repo)
 ```
 
 **Prerequisites:**
@@ -456,15 +456,38 @@ type Plugin interface {
 ## Architecture
 
 ```
-鈹屸攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?   鈹屸攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?鈹? CLI (cobra) 鈹?   鈹?GUI (Tauri) 鈹?鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹攢鈹€鈹€鈹€鈹€鈹€鈹?   鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹攢鈹€鈹€鈹€鈹€鈹€鈹?       鈹?                  鈹?       鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?                 鈹?       鈹屸攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈻尖攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?       鈹?    Switcher       鈹?       鈹? (orchestration)   鈹?       鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?                 鈹?    鈹屸攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹尖攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?    鈹?           鈹?           鈹?鈹屸攢鈹€鈹€鈻尖攢鈹€鈹€鈹? 鈹屸攢鈹€鈹€鈹€鈻尖攢鈹€鈹€鈹€鈹? 鈹屸攢鈹€鈹€鈹€鈻尖攢鈹€鈹€鈹€鈹?鈹侼etwork鈹? 鈹?Plugin  鈹? 鈹?Crypto  鈹?鈹侻anager鈹? 鈹?System  鈹? 鈹?Module  鈹?鈹斺攢鈹€鈹€鈹攢鈹€鈹€鈹? 鈹斺攢鈹€鈹€鈹€鈹攢鈹€鈹€鈹€鈹? 鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?    鈹?          鈹?鈹屸攢鈹€鈹€鈻尖攢鈹€鈹€鈹? 鈹屸攢鈹€鈹€鈹€鈻尖攢鈹€鈹€鈹€鈹?鈹俉indows鈹? 鈹?K8s     鈹?鈹侺inux  鈹? 鈹?Rules   鈹?鈹俶acOS  鈹? 鈹?Sync    鈹?鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹? 鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?```
+┌─────────────┐    ┌─────────────┐
+│  CLI (cobra) │    │ GUI (Tauri) │
+└──────┬──────┘    └──────┬──────┘
+       │                   │
+       └─────────┬─────────┘
+                 │
+       ┌─────────▼─────────┐
+       │     Switcher       │
+       │  (orchestration)   │
+       └─────────┬─────────┘
+                 │
+    ┌────────────┼────────────┐
+    │            │            │
+┌───▼───┐  ┌────▼────┐  ┌────▼────┐
+│Network│  │ Plugin  │  │ Crypto  │
+│Manager│  │ System  │  │ Module  │
+└───┬───┘  └────┬────┘  └─────────┘
+    │           │
+┌───▼───┐  ┌────▼────┐
+│Windows│  │ K8s     │
+│Linux  │  │ Rules   │
+│macOS  │  │ Sync    │
+└───────┘  └─────────┘
+```
 
 **Layer overview:**
 
-- **CLI / GUI** 鈥?Two entry points sharing the same core logic. The CLI uses [cobra](https://github.com/spf13/cobra); the GUI uses Tauri with a React frontend.
-- **Switcher** 鈥?The orchestration layer that coordinates profile application across all subsystems.
-- **Network Manager** 鈥?Platform-specific implementations for proxy settings, DNS configuration, and hosts file management.
-- **Plugin System** 鈥?Extensible architecture with EventBus, manifest-driven loading, and permission-based sandboxing.
-- **Crypto Module** 鈥?AES-256-GCM encryption with PBKDF2 key derivation for config security.
+- **CLI / GUI** — Two entry points sharing the same core logic. The CLI uses [cobra](https://github.com/spf13/cobra); the GUI uses Tauri with a React frontend.
+- **Switcher** — The orchestration layer that coordinates profile application across all subsystems.
+- **Network Manager** — Platform-specific implementations for proxy settings, DNS configuration, and hosts file management.
+- **Plugin System** — Extensible architecture with EventBus, manifest-driven loading, and permission-based sandboxing.
+- **Crypto Module** — AES-256-GCM encryption with PBKDF2 key derivation for config security.
 
 ---
 
