@@ -30,6 +30,7 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(currentCmd)
 	rootCmd.AddCommand(switchCmd)
+	rootCmd.AddCommand(useCmd)
 	rootCmd.AddCommand(validateCmd)
 	rootCmd.AddCommand(rollbackCmd)
 	rootCmd.AddCommand(exportCmd)
@@ -37,6 +38,8 @@ func init() {
 	rootCmd.AddCommand(doctorCmd)
 	rootCmd.AddCommand(pluginCmd)
 	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(statusCmd)
+	rootCmd.AddCommand(syncCmd)
 }
 
 func printError(msg string, args ...interface{}) {
