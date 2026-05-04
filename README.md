@@ -1,4 +1,4 @@
-﻿<p align="center">
+<p align="center">
   <br/>
   <img src="docs/images/logo.png" alt="net-switch" width="180" />
   <br/><br/>
@@ -45,17 +45,17 @@ Current workarounds range from shell aliases and dotfile scripts to platform-spe
 
 | Feature | Description |
 |:--------|:------------|
-| 鈿?**One-Command Switch** | Set proxy, DNS, hosts, and env vars in a single `net-switch use <profile>` |
-| 馃攲 **Plugin System** | Interface-based architecture with EventBus, lifecycle hooks, and manifest-driven loading |
-| 馃敀 **Config Encryption** | AES-256-GCM field-level encryption with PBKDF2 key derivation 鈥?secrets stay safe at rest |
-| 馃攧 **Auto-Switch Rules** | Trigger profile changes on domain, IP, SSID, or process detection |
-| 鈽革笍 **Kubernetes Integration** | List, switch, and namespace-manage kubectl contexts from the CLI |
-| 馃懃 **Team Sync** | Pull/push profiles via REST API with conflict resolution and merge strategies |
-| 馃枼锔?**GUI Desktop App** | Tauri v2 + React 18 + TypeScript + Tailwind CSS native desktop application |
-| 馃寪 **Cross-Platform** | Windows, macOS, and Linux 鈥?ARM64 and AMD64 |
-| 馃И **Dry-Run Mode** | Preview every change before it happens with `--dry-run` |
-| 馃摐 **JSON Output** | Machine-readable `--format json` on every command for scripting and CI |
-| 馃攽 **OAuth2 + PKCE** | Secure team authentication without sharing passwords |
+| ⚡ **One-Command Switch** | Set proxy, DNS, hosts, and env vars in a single `netenv use <profile>` |
+| 🔌 **Plugin System** | Interface-based architecture with EventBus, lifecycle hooks, and manifest-driven loading |
+| 🔒 **Config Encryption** | AES-256-GCM field-level encryption with PBKDF2 key derivation — secrets stay safe at rest |
+| 🔄 **Auto-Switch Rules** | Trigger profile changes on domain, IP, SSID, or process detection |
+| ☸️ **Kubernetes Integration** | List, switch, and namespace-manage kubectl contexts from the CLI |
+| 👥 **Team Sync** | Pull/push profiles via REST API with conflict resolution and merge strategies |
+| 🖥️ **GUI Desktop App** | Tauri v2 + React 18 + TypeScript + Tailwind CSS native desktop application |
+| 🌐 **Cross-Platform** | Windows, macOS, and Linux — ARM64 and AMD64 |
+| 🧪 **Dry-Run Mode** | Preview every change before it happens with `--dry-run` |
+| 📜 **JSON Output** | Machine-readable `--format json` on every command for scripting and CI |
+| 🔑 **OAuth2 + PKCE** | Secure team authentication without sharing passwords |
 
 
 ---
@@ -195,7 +195,7 @@ Then open `http://localhost:5173` in your browser.
 ### List Profiles
 
 ```bash
-$ net-switch list
+$ netenv list
 鍙敤鐨勭綉缁滅幆澧?
 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 鈻?company  -  鍏徃鍐呯綉鐜
@@ -225,7 +225,7 @@ $ net-switch list --format json
 ### Switch with Preview (Dry-Run)
 
 ```bash
-$ net-switch use company --dry-run
+$ netenv use company --dry-run
 [DRY-RUN] Would apply profile: company
   HTTP_PROXY:  http://proxy.company.com:8080
   HTTPS_PROXY: http://proxy.company.com:8080
@@ -237,7 +237,7 @@ $ net-switch use company --dry-run
 ### Switch for Real
 
 ```bash
-$ net-switch use company
+$ netenv use company
 鉁?宸插垏鎹㈠埌: company
   鎻忚堪: 鍏徃鍐呯綉鐜
   HTTP_PROXY:  http://proxy.company.com:8080
@@ -249,14 +249,14 @@ $ net-switch use company
 ### Check Current Profile
 
 ```bash
-$ net-switch current
+$ netenv current
 Current profile: company
 ```
 
 ### System Status
 
 ```bash
-$ net-switch status
+$ netenv status
 Profile: company
 HTTP Proxy: http://proxy.company.com:8080
 HTTPS Proxy: http://proxy.company.com:8080
@@ -267,47 +267,47 @@ Hosts entries: 2
 ### Restore Previous State
 
 ```bash
-$ net-switch restore
+$ netenv restore
 鉁?宸叉仮澶嶅埌涓婁竴娆＄殑缃戠粶閰嶇疆
 ```
 
 ### Encrypt / Decrypt Config
 
 ```bash
-$ net-switch encrypt
+$ netenv encrypt
 鉁?閰嶇疆宸插姞瀵嗭紙AES-256-GCM锛?
-$ net-switch decrypt
+$ netenv decrypt
 鉁?閰嶇疆宸茶В瀵?```
 
 ### Auto-Switch Rules
 
 ```bash
-$ net-switch rules list
+$ netenv rules list
   NAME         ENABLED  TRIGGER         PROFILE
   office-wifi  true     SSID: CorpNet   company
   home-wifi    true     SSID: Home-5G   direct
   client-vpn   false    IP: 10.50.0.0/16  client
 
-$ net-switch rules test "SSID: CorpNet"
+$ netenv rules test "SSID: CorpNet"
 鉁?Matched rule: office-wifi 鈫?company
 
-$ net-switch rules disable office-wifi
+$ netenv rules disable office-wifi
 鉁?Rule disabled: office-wifi
 ```
 
 ### Team Sync
 
 ```bash
-$ net-switch auth login
+$ netenv auth login
 鉁?Logged in as: dev@company.com
 
-$ net-switch sync pull
+$ netenv sync pull
 鉁?Pulled 3 profiles from team server
   company (updated)
   staging (new)
   prod    (conflict 鈥?merged)
 
-$ net-switch sync push
+$ netenv sync push
 鉁?Pushed 1 profile to team server
   home-dev (created)
 ```
@@ -315,27 +315,27 @@ $ net-switch sync push
 ### Kubernetes Context Management
 
 ```bash
-$ net-switch k8s list
+$ netenv k8s list
   CONTEXT            CLUSTER       NAMESPACE   CURRENT
   minikube           minikube      default     鉁?  prod-cluster       eks-prod      kube-system
   staging-cluster    eks-staging   default
 
-$ net-switch k8s switch prod-cluster
+$ netenv k8s switch prod-cluster
 鉁?kubectl context switched to: prod-cluster
 
-$ net-switch k8s ns monitoring
+$ netenv k8s ns monitoring
 鉁?Namespace set to: monitoring
 ```
 
 ### Plugin Management
 
 ```bash
-$ net-switch plugin list
+$ netenv plugin list
   PLUGIN   VERSION  STATUS    DESCRIPTION
   k8s      0.1.0    active    Kubernetes context and namespace management
   echo     0.1.0    active    Example plugin that echoes profile switches
 
-$ net-switch plugin info k8s
+$ netenv plugin info k8s
 Name:        k8s-plugin
 Version:     0.1.0
 Author:      netenv
