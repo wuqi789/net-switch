@@ -1,13 +1,7 @@
-<p align="center">
-  <br/>
-  <img src="docs/images/logo.png" alt="net-switch" width="180" />
-  <br/><br/>
-</p>
-
 <h1 align="center">net-switch</h1>
 
 <p align="center">
-  <strong>The developer's network environment switcher 鈥?CLI + GUI, plugin-powered, team-ready.</strong>
+  <strong>The developer's network environment switcher — CLI + GUI, plugin-powered, team-ready.</strong>
 </p>
 
 <p align="center">
@@ -33,11 +27,11 @@
 
 ## Why net-switch?
 
-Every developer juggles multiple network environments daily 鈥?corporate proxies at the office, direct connections at home, VPN tunnels for client access, cloud-specific DNS for remote clusters. Each switch means manually updating `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`, DNS servers, and `/etc/hosts` entries. Miss one setting and you'll spend 30 minutes debugging a connection that "just worked yesterday." Multiply this by every tool on your machine that respects proxy environment variables (Docker, npm, pip, kubectl, git) and the toil adds up fast.
+Every developer juggles multiple network environments daily — corporate proxies at the office, direct connections at home, VPN tunnels for client access, cloud-specific DNS for remote clusters. Each switch means manually updating `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`, DNS servers, and `/etc/hosts` entries. Miss one setting and you'll spend 30 minutes debugging a connection that "just worked yesterday." Multiply this by every tool on your machine that respects proxy environment variables (Docker, npm, pip, kubectl, git) and the toil adds up fast.
 
-Current workarounds range from shell aliases and dotfile scripts to platform-specific GUIs that only handle one piece of the puzzle. None of them give you a **single source of truth** for your entire network footprint 鈥?proxy, DNS, hosts, and tool-specific configs 鈥?let alone the ability to share those configs with your team, encrypt secrets at rest, or trigger switches automatically based on the Wi-Fi network you just joined.
+Current workarounds range from shell aliases and dotfile scripts to platform-specific GUIs that only handle one piece of the puzzle. None of them give you a **single source of truth** for your entire network footprint — proxy, DNS, hosts, and tool-specific configs — let alone the ability to share those configs with your team, encrypt secrets at rest, or trigger switches automatically based on the Wi-Fi network you just joined.
 
-**net-switch** changes that. Define your environments once in a YAML file. Switch between them with a single command. Let rules detect your context and switch automatically. Share profiles with your team through encrypted sync. And when you need a visual overview, launch the desktop GUI 鈥?all from the same project, the same config, the same workflow.
+**net-switch** changes that. Define your environments once in a YAML file. Switch between them with a single command. Let rules detect your context and switch automatically. Share profiles with your team through encrypted sync. And when you need a visual overview, launch the desktop GUI — all from the same project, the same config, the same workflow.
 
 ---
 
@@ -62,30 +56,22 @@ Current workarounds range from shell aliases and dotfile scripts to platform-spe
 
 ## Quick Start
 
-**1 鈥?Install the GUI Desktop App (Recommended)**
+**1 — Install the CLI (Recommended)**
 
-Download the one-click installer for your platform from the [Releases](https://github.com/wuqi789/net-switch-gui/releases) page:
+Download the pre-built binary for your platform from the [Releases](https://github.com/wuqi789/net-switch/releases) page:
 
-| Platform | File | Description |
-|:---------|:-----|:------------|
-| Windows  | `NetSwitch_X.Y.Z_x64-setup.exe` | Windows NSIS installer (requires administrator privileges) |
-| macOS (Apple Silicon) | `NetSwitch_X.Y.Z_aarch64.dmg` | For M1/M2/M3/M4 Macs |
-| macOS (Intel) | `NetSwitch_X.Y.Z_x64.dmg` | For Intel-based Macs |
+| Platform | File |
+|:---------|:-----|
+| Windows  | `windows-x86_64.zip` |
+| macOS (Apple Silicon) | `macos-aarch64-apple-darwin.zip` |
+| macOS (Intel) | `macos-x86_64-apple-darwin.zip` |
 
-After installation, the app will automatically request the necessary permissions on each launch.
+Extract the archive and add the binary to your PATH.
 
-**2 鈥?Install the CLI (Optional)**
-
-If you prefer the command line:
+**2 — Switch (Administrator privileges)**
 
 ```bash
-go install github.com/wuqi789/net-switch/cmd/net-switch@latest
-```
-
-**3 鈥?Switch (Administrator privileges)**
-
-```bash
-net-switch use office
+netenv use office
 ```
 
 That's it. Proxy, DNS, and hosts are now configured for your corporate network.
@@ -196,23 +182,24 @@ Then open `http://localhost:5173` in your browser.
 
 ```bash
 $ netenv list
-鍙敤鐨勭綉缁滅幆澧?
-鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
-鈻?company  -  鍏徃鍐呯綉鐜
-  vpn      -  VPN 鐜
-  test     -  娴嬭瘯鐜
-  direct   -  鐩磋繛锛堟棤浠ｇ悊锛?鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
-浣跨敤 'net-switch use <profile>' 鍒囨崲鐜
+Available network environments:
+─────────────────────────────────────
+▸ company  -  Corporate network
+  vpn      -  VPN environment
+  test     -  Test environment
+  direct   -  Direct connection (no proxy)
+─────────────────────────────────────
+Use 'netenv use <profile>' to switch environment
 ```
 
 JSON output for scripting:
 
 ```bash
-$ net-switch list --format json
+$ netenv list --format json
 [
   {
     "name": "company",
-    "description": "鍏徃鍐呯綉鐜",
+    "description": "Corporate network",
     "http_proxy": "http://proxy.company.com:8080",
     "https_proxy": "http://proxy.company.com:8080",
     "no_proxy": "localhost,127.0.0.1,.company.com",
@@ -238,13 +225,14 @@ $ netenv use company --dry-run
 
 ```bash
 $ netenv use company
-鉁?宸插垏鎹㈠埌: company
-  鎻忚堪: 鍏徃鍐呯綉鐜
+✓ Switched to: company
+  Description: Corporate network
   HTTP_PROXY:  http://proxy.company.com:8080
   HTTPS_PROXY: http://proxy.company.com:8080
   NO_PROXY:    localhost,127.0.0.1,.company.com
   DNS:         [10.0.0.1 10.0.0.2]
-  Hosts:       2 鏉¤褰?```
+  Hosts:       2 entries
+```
 
 ### Check Current Profile
 
@@ -268,16 +256,17 @@ Hosts entries: 2
 
 ```bash
 $ netenv restore
-鉁?宸叉仮澶嶅埌涓婁竴娆＄殑缃戠粶閰嶇疆
+✓ Restored to previous network configuration
 ```
 
 ### Encrypt / Decrypt Config
 
 ```bash
 $ netenv encrypt
-鉁?閰嶇疆宸插姞瀵嗭紙AES-256-GCM锛?
+✓ Configuration encrypted (AES-256-GCM)
 $ netenv decrypt
-鉁?閰嶇疆宸茶В瀵?```
+✓ Configuration decrypted
+```
 
 ### Auto-Switch Rules
 
@@ -289,26 +278,26 @@ $ netenv rules list
   client-vpn   false    IP: 10.50.0.0/16  client
 
 $ netenv rules test "SSID: CorpNet"
-鉁?Matched rule: office-wifi 鈫?company
+✓ Matched rule: office-wifi → company
 
 $ netenv rules disable office-wifi
-鉁?Rule disabled: office-wifi
+✓ Rule disabled: office-wifi
 ```
 
 ### Team Sync
 
 ```bash
 $ netenv auth login
-鉁?Logged in as: dev@company.com
+✓ Logged in as: dev@company.com
 
 $ netenv sync pull
-鉁?Pulled 3 profiles from team server
+✓ Pulled 3 profiles from team server
   company (updated)
   staging (new)
-  prod    (conflict 鈥?merged)
+  prod    (conflict — merged)
 
 $ netenv sync push
-鉁?Pushed 1 profile to team server
+✓ Pushed 1 profile to team server
   home-dev (created)
 ```
 
@@ -317,14 +306,15 @@ $ netenv sync push
 ```bash
 $ netenv k8s list
   CONTEXT            CLUSTER       NAMESPACE   CURRENT
-  minikube           minikube      default     鉁?  prod-cluster       eks-prod      kube-system
+  minikube           minikube      default     ✓
+  prod-cluster       eks-prod      kube-system
   staging-cluster    eks-staging   default
 
 $ netenv k8s switch prod-cluster
-鉁?kubectl context switched to: prod-cluster
+✓ kubectl context switched to: prod-cluster
 
 $ netenv k8s ns monitoring
-鉁?Namespace set to: monitoring
+✓ Namespace set to: monitoring
 ```
 
 ### Plugin Management

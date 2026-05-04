@@ -1,11 +1,5 @@
 [English](README.md) | 中文
 
-<p align="center">
-  <br/>
-  <img src="docs/images/logo.png" alt="net-switch" width="180" />
-  <br/><br/>
-</p>
-
 <h1 align="center">net-switch</h1>
 
 <p align="center">
@@ -47,7 +41,7 @@
 
 | 功能                   | 说明                                                     |
 | :------------------- | :----------------------------------------------------- |
-| ⚡ **一键切换**           | 一条 `net-switch use <profile>` 即可设置代理、DNS、hosts 和环境变量   |
+| ⚡ **一键切换**           | 一条 `netenv use <profile>` 即可设置代理、DNS、hosts 和环境变量   |
 | 🔌 **插件系统**          | 基于接口的架构，内置 EventBus、生命周期钩子和清单驱动的加载机制                   |
 | 🔒 **配置加密**          | AES-256-GCM 字段级加密，PBKDF2 密钥派生——敏感信息存储无忧                |
 | 🔄 **自动切换规则**        | 基于域名、IP、SSID 或进程检测自动触发配置切换                             |
@@ -174,7 +168,7 @@ npm run tauri dev
 ### 列出配置文件
 
 ```bash
-$ net-switch list
+$ netenv list
 可用的网络环境:
 ─────────────────────────────────────
 ▸ company  -  公司内网环境
@@ -205,7 +199,7 @@ $ net-switch list --format json
 ### 预览模式切换
 
 ```bash
-$ net-switch use company --dry-run
+$ netenv use company --dry-run
 [DRY-RUN] Would apply profile: company
   HTTP_PROXY:  http://proxy.company.com:8080
   HTTPS_PROXY: http://proxy.company.com:8080
@@ -217,7 +211,7 @@ $ net-switch use company --dry-run
 ### 正式切换
 
 ```bash
-$ net-switch use company
+$ netenv use company
 ✓ 已切换到: company
   描述: 公司内网环境
   HTTP_PROXY:  http://proxy.company.com:8080
@@ -230,14 +224,14 @@ $ net-switch use company
 ### 查看当前配置
 
 ```bash
-$ net-switch current
+$ netenv current
 Current profile: company
 ```
 
 ### 系统状态
 
 ```bash
-$ net-switch status
+$ netenv status
 Profile: company
 HTTP Proxy: http://proxy.company.com:8080
 HTTPS Proxy: http://proxy.company.com:8080
@@ -248,49 +242,49 @@ Hosts entries: 2
 ### 恢复上一次的状态
 
 ```bash
-$ net-switch restore
+$ netenv restore
 ✓ 已恢复到上一次的网络配置
 ```
 
 ### 加密 / 解密配置
 
 ```bash
-$ net-switch encrypt
+$ netenv encrypt
 ✓ 配置已加密（AES-256-GCM）
 
-$ net-switch decrypt
+$ netenv decrypt
 ✓ 配置已解密
 ```
 
 ### 自动切换规则
 
 ```bash
-$ net-switch rules list
+$ netenv rules list
   NAME         ENABLED  TRIGGER         PROFILE
   office-wifi  true     SSID: CorpNet   company
   home-wifi    true     SSID: Home-5G   direct
   client-vpn   false    IP: 10.50.0.0/16  client
 
-$ net-switch rules test "SSID: CorpNet"
+$ netenv rules test "SSID: CorpNet"
 ✓ Matched rule: office-wifi → company
 
-$ net-switch rules disable office-wifi
+$ netenv rules disable office-wifi
 ✓ Rule disabled: office-wifi
 ```
 
 ### 团队同步
 
 ```bash
-$ net-switch auth login
+$ netenv auth login
 ✓ Logged in as: dev@company.com
 
-$ net-switch sync pull
+$ netenv sync pull
 ✓ Pulled 3 profiles from team server
   company (updated)
   staging (new)
   prod    (conflict — merged)
 
-$ net-switch sync push
+$ netenv sync push
 ✓ Pushed 1 profile to team server
   home-dev (created)
 ```
@@ -298,28 +292,28 @@ $ net-switch sync push
 ### Kubernetes 上下文管理
 
 ```bash
-$ net-switch k8s list
+$ netenv k8s list
   CONTEXT            CLUSTER       NAMESPACE   CURRENT
   minikube           minikube      default     ✓
   prod-cluster       eks-prod      kube-system
   staging-cluster    eks-staging   default
 
-$ net-switch k8s switch prod-cluster
+$ netenv k8s switch prod-cluster
 ✓ kubectl context switched to: prod-cluster
 
-$ net-switch k8s ns monitoring
+$ netenv k8s ns monitoring
 ✓ Namespace set to: monitoring
 ```
 
 ### 插件管理
 
 ```bash
-$ net-switch plugin list
+$ netenv plugin list
   PLUGIN   VERSION  STATUS    DESCRIPTION
   k8s      0.1.0    active    Kubernetes context and namespace management
   echo     0.1.0    active    Example plugin that echoes profile switches
 
-$ net-switch plugin info k8s
+$ netenv plugin info k8s
 Name:        k8s-plugin
 Version:     0.1.0
 Author:      netenv
