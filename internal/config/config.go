@@ -6,13 +6,50 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 
 	"gopkg.in/yaml.v3"
 )
 
+var (
+	embeddedProfilesMu    sync.Mutex
+	embeddedProfiles      []Profile
+	embeddedProfilesLoaded bool
+)
+
+func ensureEmbeddedProfiles() {
+	embeddedProfilesMu.Lock()
+	defer embeddedProfilesMu.Unlock()
+	if embeddedProfilesLoaded {
+		return
+	}
+	embeddedProfilesLoaded = true
+
+	configPath := GetConfigFilePath()
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return
+	}
+	var cf ConfigFile
+	if err := yaml.Unmarshal(data, &cf); err != nil {
+		return
+	}
+	embeddedProfiles = cf.Profiles
+}
+
 type Config struct {
 	Global  *GlobalConfig
 	Profile *Profile
+}
+
+type ConfigFile struct {
+	Version        string               `yaml:"version"`
+	DefaultProfile string               `yaml:"default_profile,omitempty"`
+	LogLevel       string               `yaml:"log_level,omitempty"`
+	Color          *bool                `yaml:"color,omitempty"`
+	Backup         *BackupConfig        `yaml:"backup,omitempty"`
+	Plugins        *PluginsGlobalConfig `yaml:"plugins,omitempty"`
+	Profiles       []Profile            `yaml:"profiles,omitempty"`
 }
 
 func LoadConfig(configPath string) (*Config, error) {
@@ -30,14 +67,50 @@ func LoadConfig(configPath string) (*Config, error) {
 		return nil, fmt.Errorf("failed to read config file %s: %w", configPath, err)
 	}
 
-	if err := yaml.Unmarshal(data, gc); err != nil {
+	var cf ConfigFile
+	if err := yaml.Unmarshal(data, &cf); err != nil {
 		return nil, fmt.Errorf("failed to parse config file %s: %w", configPath, err)
 	}
+
+	if cf.Version != "" {
+		gc.Version = cf.Version
+	}
+	if cf.DefaultProfile != "" {
+		gc.DefaultProfile = cf.DefaultProfile
+	}
+	if cf.LogLevel != "" {
+		gc.LogLevel = cf.LogLevel
+	}
+	if cf.Color != nil {
+		gc.Color = *cf.Color
+	}
+	if cf.Backup != nil {
+		gc.Backup = *cf.Backup
+	}
+	if cf.Plugins != nil {
+		gc.Plugins = *cf.Plugins
+	}
+
+	embeddedProfilesMu.Lock()
+	embeddedProfiles = cf.Profiles
+	embeddedProfilesMu.Unlock()
 
 	return &Config{Global: gc}, nil
 }
 
 func LoadProfile(profilesDir, name string) (*Profile, error) {
+	ensureEmbeddedProfiles()
+
+	embeddedProfilesMu.Lock()
+	for _, ep := range embeddedProfiles {
+		if ep.Name == name {
+			p := ep
+			embeddedProfilesMu.Unlock()
+			return &p, nil
+		}
+	}
+	embeddedProfilesMu.Unlock()
+
 	if profilesDir == "" {
 		profilesDir = GetProfilesDir()
 	}
@@ -123,27 +196,43 @@ func SaveProfile(profilesDir string, profile *Profile) error {
 }
 
 func ListProfiles(profilesDir string) ([]string, error) {
+	ensureEmbeddedProfiles()
+
 	if profilesDir == "" {
 		profilesDir = GetProfilesDir()
 	}
 
+	nameSet := make(map[string]bool)
+
+	embeddedProfilesMu.Lock()
+	for _, ep := range embeddedProfiles {
+		if ep.Name != "" {
+			nameSet[ep.Name] = true
+		}
+	}
+	embeddedProfilesMu.Unlock()
+
 	entries, err := os.ReadDir(profilesDir)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return []string{}, nil
+		if !os.IsNotExist(err) {
+			return nil, fmt.Errorf("failed to read profiles directory: %w", err)
 		}
-		return nil, fmt.Errorf("failed to read profiles directory: %w", err)
+	} else {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+			name := entry.Name()
+			if strings.HasSuffix(name, ".yaml") || strings.HasSuffix(name, ".yml") {
+				n := strings.TrimSuffix(strings.TrimSuffix(name, ".yaml"), ".yml")
+				nameSet[n] = true
+			}
+		}
 	}
 
 	var profiles []string
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		name := entry.Name()
-		if strings.HasSuffix(name, ".yaml") || strings.HasSuffix(name, ".yml") {
-			profiles = append(profiles, strings.TrimSuffix(strings.TrimSuffix(name, ".yaml"), ".yml"))
-		}
+	for n := range nameSet {
+		profiles = append(profiles, n)
 	}
 
 	sort.Strings(profiles)
