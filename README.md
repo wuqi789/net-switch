@@ -103,6 +103,26 @@ Suitable for users who prefer graphical interfaces, providing a more intuitive u
 
 A cross-platform desktop application built with **Tauri v2 + React 18 + TypeScript + Tailwind CSS**.
 
+### Screenshots
+
+#### Application Home
+![Application Home](images/应用首页.png)
+
+#### Team Sync
+![Team Sync](images/团队同步.png)
+
+#### Config Encryption
+![Config Encryption](images/安全-配置文件加密.png)
+
+#### Plugin Management
+![Plugin Management](images/插件.png)
+
+#### Auto Rules
+![Auto Rules](images/自动规则.png)
+
+#### Configuration Management
+![Configuration Management](images/设置-配置config文件.png)
+
 ### Running the GUI
 
 The GUI source lives in a separate repository `net-switch-gui`:

@@ -57,7 +57,18 @@
 
 ## 快速开始
 
-net-switch 提供两种使用方式，您可以根据需求选择：
+**  安装 GUI 桌面应用（推荐）**
+
+从 [Releases](https://github.com/wuqi789/net-switch-gui/releases) 页面下载对应平台的安装包，一键安装：
+
+| 平台 | 文件 | 说明 |
+|:-----|:-----|:-----|
+| Windows | `NetSwitch_X.Y.Z_x64-setup.exe` | Windows NSIS 安装程序（自动请求管理员权限） |
+| macOS（Apple Silicon） | `NetSwitch_X.Y.Z_aarch64.dmg` | 适用于 M1/M2/M3/M4 芯片的 Mac |
+| macOS（Intel） | `NetSwitch_X.Y.Z_x64.dmg` | 适用于 Intel 芯片的 Mac |
+
+安装完成后，应用每次启动时会自动请求所需的系统权限。
+
 
 ***
 
@@ -67,17 +78,6 @@ net-switch 提供两种使用方式，您可以根据需求选择：
 
 适合喜欢命令行操作的用户，轻量且快速。
 
-#### 下载预编译二进制文件(推荐)
-
-从 [Releases](https://github.com/wuqi789/net-switch/releases) 页面下载对应平台的最新版本:
-
-| 平台 | 架构 | 文件 |
-|:---|:-------------|:-----|
-| Windows | amd64 | `windows-x86_64.zip` |
-| macOS (Apple Silicon) | arm64 | `macos-aarch64-apple-darwin.zip` |
-| macOS (Intel) | amd64 | `macos-x86_64-apple-darwin.zip` |
-
-下载后解压缩,将二进制文件添加到PATH中即可使用。
 
 #### 从源码构建
 
@@ -101,31 +101,30 @@ go build -o bin/net-switch ./cmd/netenv/
 
 适合喜欢图形界面的用户，提供更直观的操作体验。
 
-从 [Releases](https://github.com/wuqi789/net-switch-gui/releases) 页面下载对应平台的安装包，一键安装：
-
-| 平台 | 文件 | 说明 |
-|:-----|:-----|:-----|
-| Windows | `NetSwitch_X.Y.Z_x64-setup.exe` | Windows NSIS 安装程序（自动请求管理员权限） |
-| macOS（Apple Silicon） | `NetSwitch_X.Y.Z_aarch64.dmg` | 适用于 M1/M2/M3/M4 芯片的 Mac |
-| macOS（Intel） | `NetSwitch_X.Y.Z_x64.dmg` | 适用于 Intel 芯片的 Mac |
-
-安装完成后，应用每次启动时会自动请求所需的系统权限。
-
-***
 
 ## GUI 图形化界面功能
 
 基于 **Tauri v2 + React 18 + TypeScript + Tailwind CSS** 构建的跨平台桌面应用。
 
-功能亮点：
+### 应用截图
 
-- 可视化配置文件管理，带状态指示
-- 实时网络状态监控仪表盘
-- 团队同步面板，拉取和推送配置
-- 加密配置编辑，内置 YAML 编辑器
-- 自动切换规则配置，可视化触发条件
-- 插件管理，可视化生命周期
-- 深色与浅色主题支持
+#### 应用首页
+![应用首页](images/应用首页.png)
+
+#### 团队同步
+![团队同步](images/团队同步.png)
+
+#### 配置文件加密
+![配置文件加密](images/安全-配置文件加密.png)
+
+#### 插件管理
+![插件管理](images/插件.png)
+
+#### 自动规则
+![自动规则](images/自动规则.png)
+
+#### 配置管理
+![配置管理](images/设置-配置config文件.png)
 
 ### 运行 GUI
 
@@ -142,6 +141,7 @@ github.com/wuqi789/
 - [Node.js](https://nodejs.org/) 18+
 - [Rust](https://www.rust-lang.org/)（Tauri 后端需要）
 - 已编译的 `net-switch` CLI 可执行文件
+
 
 **步骤：**
 
@@ -160,6 +160,19 @@ npm run tauri dev
 首次启动需要编译 Rust 后端，可能需要几分钟。之后增量编译会快很多。
 
 ***
+
+
+
+
+功能亮点：
+
+- 可视化配置文件管理，带状态指示
+- 实时网络状态监控仪表盘
+- 团队同步面板，拉取和推送配置
+- 加密配置编辑，内置 YAML 编辑器
+- 自动切换规则配置，可视化触发条件
+- 插件管理，可视化生命周期
+- 深色与浅色主题支持
 
 ## CLI 使用
 
