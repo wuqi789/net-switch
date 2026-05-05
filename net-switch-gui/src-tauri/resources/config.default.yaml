@@ -1,5 +1,3 @@
-version: "1"
-default_profile: direct
 profiles:
   - name: company
     description: "公司内网环境"

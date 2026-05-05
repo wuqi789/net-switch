@@ -69,9 +69,7 @@ fn net_switch_state_dir() -> PathBuf {
     PathBuf::from(&home).join(".net-switch")
 }
 
-const DEFAULT_CONFIG_YAML: &str = r#"version: "1"
-default_profile: direct
-profiles:
+const DEFAULT_CONFIG_YAML: &str = r#"profiles:
   - name: company
     description: "公司内网环境"
     http_proxy: "http://proxy.company.com:8080"
