@@ -1,21 +1,12 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useTheme } from "../contexts/ThemeContext";
-import type { Profile } from "../types";
 
 interface ConfigEditorProps {
-  profiles: Profile[];
-  defaultProfile: string;
-  onSetDefault: (name: string) => void;
   onSave: () => void;
 }
 
-export default function ConfigEditor({
-  profiles,
-  defaultProfile,
-  onSetDefault,
-  onSave,
-}: ConfigEditorProps) {
+export default function ConfigEditor({ onSave }: ConfigEditorProps) {
   const [config, setConfig] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +57,7 @@ export default function ConfigEditor({
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">应用设置</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">配置应用外观和偏好</p>
         </div>
-        <div className="p-4 space-y-5">
+        <div className="p-4">
           <div>
             <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">主题外观</div>
             <div className="flex gap-3">
@@ -84,35 +75,6 @@ export default function ConfigEditor({
                   {opt.label}
                 </button>
               ))}
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              默认 Profile
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-              程序启动时自动加载的网络环境配置
-            </p>
-            <div className="flex items-center gap-3">
-              <select
-                value={defaultProfile}
-                onChange={(e) => onSetDefault(e.target.value)}
-                className="px-3 py-2 rounded-lg text-sm border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[200px]"
-              >
-                <option value="">未设置</option>
-                {profiles.map((p) => (
-                  <option key={p.name} value={p.name}>
-                    {p.name}
-                    {p.description ? ` - ${p.description}` : ""}
-                  </option>
-                ))}
-              </select>
-              {defaultProfile && (
-                <span className="text-xs text-green-600 dark:text-green-400">
-                  ✓ 启动时自动加载: {defaultProfile}
-                </span>
-              )}
             </div>
           </div>
         </div>

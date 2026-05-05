@@ -6,7 +6,6 @@ export function useNetSwitch() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [current, setCurrent] = useState<CurrentInfo | null>(null);
   const [status, setStatus] = useState<SystemStatus | null>(null);
-  const [defaultProfile, setDefaultProfileState] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -106,44 +105,16 @@ export function useNetSwitch() {
     [addLog],
   );
 
-  const fetchDefaultProfile = useCallback(async () => {
-    try {
-      const result = await invoke<string>("get_default_profile");
-      const data = JSON.parse(result);
-      setDefaultProfileState(data?.default_profile || "");
-    } catch {
-      setDefaultProfileState("");
-    }
-  }, []);
-
-  const setDefaultProfile = useCallback(
-    async (name: string) => {
-      try {
-        await invoke("set_default_profile", { name });
-        setDefaultProfileState(name);
-        addLog("info", "设置默认 Profile", `默认 Profile 已设置为 ${name}`);
-        await fetchCurrent();
-        await fetchStatus();
-      } catch (e) {
-        const msg = String(e);
-        setError(msg);
-        addLog("error", "设置默认 Profile 失败", msg);
-      }
-    },
-    [addLog, fetchCurrent, fetchStatus],
-  );
-
   const refreshAll = useCallback(async () => {
     setLoading(true);
-    await Promise.all([fetchProfiles(), fetchCurrent(), fetchStatus(), fetchDefaultProfile()]);
+    await Promise.all([fetchProfiles(), fetchCurrent(), fetchStatus()]);
     setLoading(false);
-  }, [fetchProfiles, fetchCurrent, fetchStatus, fetchDefaultProfile]);
+  }, [fetchProfiles, fetchCurrent, fetchStatus]);
 
   const initWithDefault = useCallback(async () => {
     setLoading(true);
     try {
       await fetchProfiles();
-      await fetchDefaultProfile();
 
       const result = await invoke<string>("get_current");
       const data = JSON.parse(result);
@@ -165,19 +136,17 @@ export function useNetSwitch() {
     } finally {
       setLoading(false);
     }
-  }, [fetchProfiles, fetchDefaultProfile, fetchStatus, addLog]);
+  }, [fetchProfiles, fetchStatus, addLog]);
 
   return {
     profiles,
     current,
     status,
-    defaultProfile,
     loading,
     error,
     logs,
     switchProfile,
     dryRunSwitch,
-    setDefaultProfile,
     refreshAll,
     initWithDefault,
     clearError: () => setError(null),

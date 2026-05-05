@@ -354,53 +354,6 @@ fn find_config_file() -> Result<String, String> {
     Err("Config file not found".to_string())
 }
 
-// ── Default profile commands ───────────────────────────────────────────
-
-#[tauri::command]
-fn get_default_profile() -> Result<String, String> {
-    let config_path = find_config_file()?;
-    let content = std::fs::read_to_string(&config_path)
-        .map_err(|e| format!("Cannot read config: {}", e))?;
-
-    let config: serde_yaml::Value = serde_yaml::from_str(&content)
-        .map_err(|e| format!("Cannot parse config: {}", e))?;
-
-    let default_profile = config
-        .get("default_profile")
-        .and_then(|v| v.as_str())
-        .unwrap_or("")
-        .to_string();
-
-    let result = serde_json::json!({
-        "default_profile": default_profile,
-    });
-    serde_json::to_string(&result).map_err(|e| format!("JSON error: {}", e))
-}
-
-#[tauri::command]
-fn set_default_profile(name: String) -> Result<(), String> {
-    let config_path = find_config_file()?;
-    let content = std::fs::read_to_string(&config_path)
-        .map_err(|e| format!("Cannot read config: {}", e))?;
-
-    let mut config: serde_yaml::Value = serde_yaml::from_str(&content)
-        .map_err(|e| format!("Cannot parse config: {}", e))?;
-
-    if let Some(mapping) = config.as_mapping_mut() {
-        mapping.insert(
-            serde_yaml::Value::String("default_profile".into()),
-            serde_yaml::Value::String(name.clone()),
-        );
-    }
-
-    let yaml = serde_yaml::to_string(&config)
-        .map_err(|e| format!("YAML error: {}", e))?;
-    std::fs::write(&config_path, yaml)
-        .map_err(|e| format!("Cannot write config: {}", e))?;
-
-    Ok(())
-}
-
 // ── Sync commands ──────────────────────────────────────────────────────
 
 #[tauri::command]
@@ -940,8 +893,6 @@ pub fn run() {
             dry_run_switch,
             read_config,
             write_config,
-            get_default_profile,
-            set_default_profile,
             sync_status,
             sync_pull,
             sync_push,
