@@ -17,11 +17,13 @@ export default function App() {
     profiles,
     current,
     status,
+    defaultProfile,
     loading,
     error,
     logs,
     switchProfile,
     dryRunSwitch,
+    setDefaultProfile,
     refreshAll,
     initWithDefault,
     clearError,
@@ -152,7 +154,14 @@ export default function App() {
 
           {tab === "logs" && <LogViewer logs={logs} />}
 
-          {tab === "config" && <ConfigEditor onSave={refreshAll} />}
+          {tab === "config" && (
+            <ConfigEditor
+              profiles={profiles}
+              defaultProfile={defaultProfile}
+              onSetDefault={setDefaultProfile}
+              onSave={refreshAll}
+            />
+          )}
 
           {tab === "sync" && <SyncPanel />}
 

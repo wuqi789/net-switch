@@ -1,6 +1,43 @@
 version: "1"
 default_profile: direct
 profiles:
+  - name: company
+    description: "公司内网环境"
+    http_proxy: "http://proxy.company.com:8080"
+    https_proxy: "http://proxy.company.com:8080"
+    no_proxy: "localhost,127.0.0.1,.company.com"
+    dns:
+      servers:
+        - "10.0.0.1"
+        - "10.0.0.2"
+    hosts:
+      - ip: "10.0.1.100"
+        hostname: "api.company.com"
+      - ip: "10.0.1.101"
+        hostname: "db.company.com"
+
+  - name: vpn
+    description: "VPN 环境"
+    http_proxy: "socks5://127.0.0.1:7897"
+    https_proxy: "socks5://127.0.0.1:7897"
+    no_proxy: "localhost,127.0.0.1"
+    dns:
+      servers:
+        - "8.8.8.8"
+        - "8.8.4.4"
+
+  - name: test
+    description: "测试环境"
+    http_proxy: "http://test-proxy.company.com:3128"
+    https_proxy: "http://test-proxy.company.com:3128"
+    no_proxy: "localhost,127.0.0.1"
+    dns:
+      servers:
+        - "192.168.1.1"
+    hosts:
+      - ip: "192.168.1.100"
+        hostname: "api.test.com"
+
   - name: direct
     description: "直连（无代理）"
     http_proxy: ""

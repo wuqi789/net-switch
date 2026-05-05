@@ -67,38 +67,138 @@ fn net_switch_state_dir() -> PathBuf {
     PathBuf::from(&home).join(".net-switch")
 }
 
+const DEFAULT_CONFIG_YAML: &str = r#"version: "1"
+default_profile: direct
+profiles:
+  - name: company
+    description: "公司内网环境"
+    http_proxy: "http://proxy.company.com:8080"
+    https_proxy: "http://proxy.company.com:8080"
+    no_proxy: "localhost,127.0.0.1,.company.com"
+    dns:
+      servers:
+        - "10.0.0.1"
+        - "10.0.0.2"
+    hosts:
+      - ip: "10.0.1.100"
+        hostname: "api.company.com"
+      - ip: "10.0.1.101"
+        hostname: "db.company.com"
+
+  - name: vpn
+    description: "VPN 环境"
+    http_proxy: "socks5://127.0.0.1:7897"
+    https_proxy: "socks5://127.0.0.1:7897"
+    no_proxy: "localhost,127.0.0.1"
+    dns:
+      servers:
+        - "8.8.8.8"
+        - "8.8.4.4"
+
+  - name: test
+    description: "测试环境"
+    http_proxy: "http://test-proxy.company.com:3128"
+    https_proxy: "http://test-proxy.company.com:3128"
+    no_proxy: "localhost,127.0.0.1"
+    dns:
+      servers:
+        - "192.168.1.1"
+    hosts:
+      - ip: "192.168.1.100"
+        hostname: "api.test.com"
+
+  - name: direct
+    description: "直连（无代理）"
+    http_proxy: ""
+    https_proxy: ""
+"#;
+
+fn read_bundled_config() -> Option<String> {
+    if let Some(dir) = net_switch_dir() {
+        let bundled = dir.join("resources").join("config.default.yaml");
+        if bundled.exists() {
+            return std::fs::read_to_string(&bundled).ok();
+        }
+    }
+    None
+}
+
 fn ensure_default_config() {
     let config_dir = net_switch_state_dir();
     let config_path = config_dir.join("config.yaml");
-    if config_path.exists() {
+
+    if !config_path.exists() {
+        let _ = std::fs::create_dir_all(&config_dir);
+        let content = read_bundled_config()
+            .unwrap_or_else(|| DEFAULT_CONFIG_YAML.to_string());
+        let _ = std::fs::write(&config_path, content);
         return;
     }
-    let _ = std::fs::create_dir_all(&config_dir);
 
-    let default_config = if let Some(dir) = net_switch_dir() {
-        let bundled = dir.join("resources").join("config.default.yaml");
-        if bundled.exists() {
-            std::fs::read_to_string(&bundled).ok()
-        } else {
-            None
-        }
-    } else {
-        None
+    ensure_default_profiles(&config_path);
+}
+
+fn ensure_default_profiles(config_path: &std::path::Path) {
+    let content = match std::fs::read_to_string(config_path) {
+        Ok(c) => c,
+        Err(_) => return,
     };
 
-    let content = default_config.unwrap_or_else(|| {
-        concat!(
-            "version: \"1\"\n",
-            "default_profile: direct\n",
-            "profiles:\n",
-            "  - name: direct\n",
-            "    description: \"直连（无代理）\"\n",
-            "    http_proxy: \"\"\n",
-            "    https_proxy: \"\"\n",
-        ).to_string()
-    });
+    let mut config: serde_yaml::Value = match serde_yaml::from_str(&content) {
+        Ok(v) => v,
+        Err(_) => return,
+    };
 
-    let _ = std::fs::write(&config_path, content);
+    let default_config: serde_yaml::Value = match serde_yaml::from_str(DEFAULT_CONFIG_YAML) {
+        Ok(v) => v,
+        Err(_) => return,
+    };
+
+    let default_profiles = match default_config.get("profiles").and_then(|v| v.as_sequence()) {
+        Some(p) => p,
+        None => return,
+    };
+
+    let existing_names: Vec<String> = config
+        .get("profiles")
+        .and_then(|v| v.as_sequence())
+        .map(|seq| {
+            seq.iter()
+                .filter_map(|p| p.get("name").and_then(|n| n.as_str()).map(String::from))
+                .collect()
+        })
+        .unwrap_or_default();
+
+    let mut needs_update = false;
+
+    if let Some(profiles) = config.get_mut("profiles").and_then(|v| v.as_sequence_mut()) {
+        for default_profile in default_profiles {
+            let name = default_profile
+                .get("name")
+                .and_then(|n| n.as_str())
+                .unwrap_or("");
+            if !existing_names.contains(&name.to_string()) {
+                profiles.push(default_profile.clone());
+                needs_update = true;
+            }
+        }
+    }
+
+    if config.get("default_profile").and_then(|v| v.as_str()).unwrap_or("").is_empty() {
+        if let Some(mapping) = config.as_mapping_mut() {
+            mapping.insert(
+                serde_yaml::Value::String("default_profile".into()),
+                serde_yaml::Value::String("direct".into()),
+            );
+            needs_update = true;
+        }
+    }
+
+    if needs_update {
+        if let Ok(updated) = serde_yaml::to_string(&config) {
+            let _ = std::fs::write(config_path, updated);
+        }
+    }
 }
 
 fn run_net_switch(args: &[&str]) -> Result<String, String> {
@@ -252,6 +352,53 @@ fn find_config_file() -> Result<String, String> {
     }
 
     Err("Config file not found".to_string())
+}
+
+// ── Default profile commands ───────────────────────────────────────────
+
+#[tauri::command]
+fn get_default_profile() -> Result<String, String> {
+    let config_path = find_config_file()?;
+    let content = std::fs::read_to_string(&config_path)
+        .map_err(|e| format!("Cannot read config: {}", e))?;
+
+    let config: serde_yaml::Value = serde_yaml::from_str(&content)
+        .map_err(|e| format!("Cannot parse config: {}", e))?;
+
+    let default_profile = config
+        .get("default_profile")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+
+    let result = serde_json::json!({
+        "default_profile": default_profile,
+    });
+    serde_json::to_string(&result).map_err(|e| format!("JSON error: {}", e))
+}
+
+#[tauri::command]
+fn set_default_profile(name: String) -> Result<(), String> {
+    let config_path = find_config_file()?;
+    let content = std::fs::read_to_string(&config_path)
+        .map_err(|e| format!("Cannot read config: {}", e))?;
+
+    let mut config: serde_yaml::Value = serde_yaml::from_str(&content)
+        .map_err(|e| format!("Cannot parse config: {}", e))?;
+
+    if let Some(mapping) = config.as_mapping_mut() {
+        mapping.insert(
+            serde_yaml::Value::String("default_profile".into()),
+            serde_yaml::Value::String(name.clone()),
+        );
+    }
+
+    let yaml = serde_yaml::to_string(&config)
+        .map_err(|e| format!("YAML error: {}", e))?;
+    std::fs::write(&config_path, yaml)
+        .map_err(|e| format!("Cannot write config: {}", e))?;
+
+    Ok(())
 }
 
 // ── Sync commands ──────────────────────────────────────────────────────
@@ -793,6 +940,8 @@ pub fn run() {
             dry_run_switch,
             read_config,
             write_config,
+            get_default_profile,
+            set_default_profile,
             sync_status,
             sync_pull,
             sync_push,

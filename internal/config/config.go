@@ -12,18 +12,13 @@ import (
 )
 
 var (
-	embeddedProfilesMu    sync.Mutex
-	embeddedProfiles      []Profile
-	embeddedProfilesLoaded bool
+	embeddedProfilesMu sync.Mutex
+	embeddedProfiles   []Profile
 )
 
 func ensureEmbeddedProfiles() {
 	embeddedProfilesMu.Lock()
 	defer embeddedProfilesMu.Unlock()
-	if embeddedProfilesLoaded {
-		return
-	}
-	embeddedProfilesLoaded = true
 
 	configPath := GetConfigFilePath()
 	data, err := os.ReadFile(configPath)

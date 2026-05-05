@@ -1,6 +1,10 @@
 package config
 
-import "gopkg.in/yaml.v3"
+import (
+	"strings"
+
+	"gopkg.in/yaml.v3"
+)
 
 type Profile struct {
 	Name        string         `yaml:"name"`
@@ -10,58 +14,6 @@ type Profile struct {
 	Hosts       HostsConfig    `yaml:"hosts"`
 	EnvVars     EnvVarsConfig  `yaml:"env_vars"`
 	Plugins     []PluginConfig `yaml:"plugins,omitempty"`
-}
-
-type flatProfile struct {
-	Name        string         `yaml:"name"`
-	Description string         `yaml:"description,omitempty"`
-	HTTPProxy   string         `yaml:"http_proxy,omitempty"`
-	HTTPSProxy  string         `yaml:"https_proxy,omitempty"`
-	SOCKS5Proxy string         `yaml:"socks5_proxy,omitempty"`
-	NoProxy     []string       `yaml:"no_proxy,omitempty"`
-	Hosts       HostsConfig    `yaml:"hosts"`
-	DNSServers  []string       `yaml:"dns_servers,omitempty"`
-	DNSSearch   []string       `yaml:"dns_search_domains,omitempty"`
-	EnvVars     map[string]string `yaml:"env_vars,omitempty"`
-}
-
-func (p *Profile) UnmarshalYAML(value *yaml.Node) error {
-	type nestedProfile Profile
-	var nested nestedProfile
-	if err := value.Decode(&nested); err == nil {
-		if nested.Proxy.HTTP != "" || nested.Proxy.HTTPS != "" || nested.Proxy.Enabled ||
-			nested.DNS.Enabled || len(nested.DNS.Servers) > 0 ||
-			nested.Hosts.Enabled {
-			*p = Profile(nested)
-			return nil
-		}
-	}
-
-	var flat flatProfile
-	if err := value.Decode(&flat); err != nil {
-		return err
-	}
-
-	p.Name = flat.Name
-	p.Description = flat.Description
-	p.Hosts = flat.Hosts
-	p.EnvVars = EnvVarsConfig{Enabled: len(flat.EnvVars) > 0, Variables: flat.EnvVars}
-	p.Plugins = nil
-
-	p.Proxy = ProxyConfig{
-		Enabled: flat.HTTPProxy != "" || flat.HTTPSProxy != "" || flat.SOCKS5Proxy != "",
-		HTTP:    flat.HTTPProxy,
-		HTTPS:   flat.HTTPSProxy,
-		SOCKS5:  flat.SOCKS5Proxy,
-		NoProxy: flat.NoProxy,
-	}
-	p.DNS = DNSConfig{
-		Enabled:       len(flat.DNSServers) > 0,
-		Servers:       flat.DNSServers,
-		SearchDomains: flat.DNSSearch,
-	}
-
-	return nil
 }
 
 type ProxyConfig struct {
@@ -128,4 +80,114 @@ type PluginConfig struct {
 	Name    string                 `yaml:"name"`
 	Enabled bool                   `yaml:"enabled"`
 	Config  map[string]interface{} `yaml:"config,omitempty"`
+}
+
+type flatProfile struct {
+	Name        string      `yaml:"name"`
+	Description string      `yaml:"description,omitempty"`
+	HTTPProxy   string      `yaml:"http_proxy,omitempty"`
+	HTTPSProxy  string      `yaml:"https_proxy,omitempty"`
+	SOCKS5Proxy string      `yaml:"socks5_proxy,omitempty"`
+	NoProxy     interface{} `yaml:"no_proxy,omitempty"`
+	DNSServers  []string    `yaml:"dns_servers,omitempty"`
+	DNSSearch   []string    `yaml:"dns_search_domains,omitempty"`
+	Hosts       HostsConfig `yaml:"hosts"`
+	EnvVars     interface{} `yaml:"env_vars,omitempty"`
+}
+
+type nestedProfile struct {
+	Name        string         `yaml:"name"`
+	Description string         `yaml:"description,omitempty"`
+	Proxy       ProxyConfig    `yaml:"proxy"`
+	DNS         DNSConfig      `yaml:"dns"`
+	Hosts       HostsConfig    `yaml:"hosts"`
+	EnvVars     EnvVarsConfig  `yaml:"env_vars"`
+	Plugins     []PluginConfig `yaml:"plugins,omitempty"`
+}
+
+func (p *Profile) UnmarshalYAML(value *yaml.Node) error {
+	var nested nestedProfile
+	nestedErr := value.Decode(&nested)
+
+	var flat flatProfile
+	flatErr := value.Decode(&flat)
+
+	if flatErr != nil && nestedErr != nil {
+		return flatErr
+	}
+
+	p.Name = flat.Name
+	if p.Name == "" {
+		p.Name = nested.Name
+	}
+	p.Description = flat.Description
+	if p.Description == "" {
+		p.Description = nested.Description
+	}
+	p.Plugins = nested.Plugins
+
+	if flat.HTTPProxy != "" || flat.HTTPSProxy != "" || flat.SOCKS5Proxy != "" {
+		p.Proxy = ProxyConfig{
+			Enabled: true,
+			HTTP:    flat.HTTPProxy,
+			HTTPS:   flat.HTTPSProxy,
+			SOCKS5:  flat.SOCKS5Proxy,
+		}
+		p.Proxy.NoProxy = parseNoProxy(flat.NoProxy)
+	} else if nestedErr == nil {
+		p.Proxy = nested.Proxy
+	}
+
+	if nestedErr == nil && len(nested.DNS.Servers) > 0 {
+		p.DNS = nested.DNS
+		p.DNS.Enabled = true
+	} else if flatErr == nil && len(flat.DNSServers) > 0 {
+		p.DNS = DNSConfig{
+			Enabled:       true,
+			Servers:       flat.DNSServers,
+			SearchDomains: flat.DNSSearch,
+		}
+	}
+
+	p.Hosts = flat.Hosts
+	if len(p.Hosts.Entries) > 0 {
+		p.Hosts.Enabled = true
+	}
+
+	if nestedErr == nil && nested.EnvVars.Variables != nil && len(nested.EnvVars.Variables) > 0 {
+		p.EnvVars = nested.EnvVars
+		p.EnvVars.Enabled = true
+	} else if flatEnv, ok := flat.EnvVars.(map[string]interface{}); ok && len(flatEnv) > 0 {
+		p.EnvVars = EnvVarsConfig{Enabled: true, Variables: make(map[string]string)}
+		for k, v := range flatEnv {
+			if s, ok := v.(string); ok {
+				p.EnvVars.Variables[k] = s
+			}
+		}
+	}
+
+	return nil
+}
+
+func parseNoProxy(v interface{}) []string {
+	switch np := v.(type) {
+	case string:
+		var result []string
+		for _, s := range strings.Split(np, ",") {
+			s = strings.TrimSpace(s)
+			if s != "" {
+				result = append(result, s)
+			}
+		}
+		return result
+	case []interface{}:
+		var result []string
+		for _, item := range np {
+			if s, ok := item.(string); ok {
+				result = append(result, s)
+			}
+		}
+		return result
+	}
+	return nil
 }
