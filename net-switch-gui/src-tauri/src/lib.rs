@@ -135,7 +135,22 @@ fn ensure_default_config() {
         return;
     }
 
+    if is_old_format_config(&config_path) {
+        let content = read_bundled_config()
+            .unwrap_or_else(|| DEFAULT_CONFIG_YAML.to_string());
+        let _ = std::fs::write(&config_path, content);
+        return;
+    }
+
     ensure_default_profiles(&config_path);
+}
+
+fn is_old_format_config(config_path: &std::path::Path) -> bool {
+    let content = match std::fs::read_to_string(config_path) {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+    content.contains("default_profile:") || content.contains("log_level:") || content.contains("backup:")
 }
 
 fn ensure_default_profiles(config_path: &std::path::Path) {
