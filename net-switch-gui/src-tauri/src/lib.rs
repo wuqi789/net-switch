@@ -1,5 +1,8 @@
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::Mutex;
+
+static ACTIVE_PROFILE: Mutex<String> = Mutex::new(String::new());
 
 fn net_switch_dir() -> Option<PathBuf> {
     let exe_name = if cfg!(target_os = "windows") { "net-switch.exe" } else { "net-switch" };
@@ -294,23 +297,165 @@ fn json_string_field(val: &serde_json::Value, key: &str) -> String {
 
 #[tauri::command]
 fn get_profiles() -> Result<String, String> {
-    run_net_switch(&["list", "--format", "json"])
+    let result = run_net_switch(&["list", "--format", "json"])?;
+
+    if let Ok(mut active) = ACTIVE_PROFILE.lock() {
+        if active.is_empty() {
+            if let Ok(profiles) = serde_json::from_str::<serde_json::Value>(&result) {
+                if let Some(arr) = profiles.as_array() {
+                    if let Some(first) = arr.first() {
+                        if let Some(name) = first.get("name").and_then(|v| v.as_str()) {
+                            *active = name.to_string();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(result)
 }
 
 #[tauri::command]
 fn get_current() -> Result<String, String> {
-    run_net_switch(&["current", "--format", "json"])
+    let active = ACTIVE_PROFILE.lock().map_err(|e| format!("Lock error: {}", e))?;
+    if active.is_empty() {
+        return Ok(r#"{"current_profile":"","description":"","http_proxy":"","https_proxy":"","no_proxy":"","dns":null,"hosts":[]}"#.to_string());
+    }
+
+    let config_path = find_config_file()?;
+    let content = std::fs::read_to_string(&config_path)
+        .map_err(|e| format!("Cannot read config: {}", e))?;
+
+    let config: serde_yaml::Value = serde_yaml::from_str(&content)
+        .map_err(|e| format!("Cannot parse config: {}", e))?;
+
+    let default_profiles = vec![];
+    let profiles = config.get("profiles").and_then(|v| v.as_sequence()).unwrap_or(&default_profiles);
+
+    for p in profiles {
+        let name = p.get("name").and_then(|v| v.as_str()).unwrap_or("");
+        if name == *active {
+            let description = p.get("description").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let http_proxy = p.get("http_proxy").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let https_proxy = p.get("https_proxy").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let no_proxy = p.get("no_proxy").and_then(|v| v.as_str()).unwrap_or("").to_string();
+
+            let dns = p.get("dns").and_then(|v| v.get("servers")).and_then(|v| v.as_sequence()).map(|seq| {
+                let servers: Vec<String> = seq.iter().filter_map(|s| s.as_str().map(String::from)).collect();
+                serde_json::json!({"servers": servers})
+            });
+
+            let hosts: Vec<serde_json::Value> = p.get("hosts").and_then(|v| v.as_sequence()).map(|seq| {
+                seq.iter().filter_map(|h| {
+                    let ip = h.get("ip").and_then(|v| v.as_str())?;
+                    let hostname = h.get("hostname").and_then(|v| v.as_str())?;
+                    Some(serde_json::json!({"ip": ip, "hostname": hostname}))
+                }).collect()
+            }).unwrap_or_default();
+
+            let result = serde_json::json!({
+                "current_profile": name,
+                "description": description,
+                "http_proxy": http_proxy,
+                "https_proxy": https_proxy,
+                "no_proxy": no_proxy,
+                "dns": dns,
+                "hosts": hosts,
+            });
+            return serde_json::to_string(&result).map_err(|e| format!("JSON error: {}", e));
+        }
+    }
+
+    Ok(r#"{"current_profile":"","description":"","http_proxy":"","https_proxy":"","no_proxy":"","dns":null,"hosts":[]}"#.to_string())
 }
 
 #[tauri::command]
 fn get_status() -> Result<String, String> {
-    run_net_switch(&["status", "--format", "json"])
+    let active = ACTIVE_PROFILE.lock().map_err(|e| format!("Lock error: {}", e))?;
+
+    if active.is_empty() {
+        let result = serde_json::json!({
+            "current_profile": "",
+            "platform": std::env::consts::OS,
+            "proxy": {"http_proxy": "", "https_proxy": "", "no_proxy": ""},
+            "dns": {"servers": []},
+            "hosts": {},
+            "backup": {"count": 0, "latest": ""},
+        });
+        return serde_json::to_string(&result).map_err(|e| format!("JSON error: {}", e));
+    }
+
+    let config_path = find_config_file()?;
+    let content = std::fs::read_to_string(&config_path)
+        .map_err(|e| format!("Cannot read config: {}", e))?;
+
+    let config: serde_yaml::Value = serde_yaml::from_str(&content)
+        .map_err(|e| format!("Cannot parse config: {}", e))?;
+
+    let default_profiles = vec![];
+    let profiles = config.get("profiles").and_then(|v| v.as_sequence()).unwrap_or(&default_profiles);
+
+    for p in profiles {
+        let name = p.get("name").and_then(|v| v.as_str()).unwrap_or("");
+        if name == *active {
+            let http_proxy = p.get("http_proxy").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let https_proxy = p.get("https_proxy").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let no_proxy = p.get("no_proxy").and_then(|v| v.as_str()).unwrap_or("").to_string();
+
+            let dns_servers: Vec<String> = p.get("dns")
+                .and_then(|v| v.get("servers"))
+                .and_then(|v| v.as_sequence())
+                .map(|seq| seq.iter().filter_map(|s| s.as_str().map(String::from)).collect())
+                .unwrap_or_default();
+
+            let hosts_map: serde_json::Value = p.get("hosts")
+                .and_then(|v| v.as_sequence())
+                .map(|seq| {
+                    let mut map = serde_json::Map::new();
+                    for h in seq {
+                        if let (Some(ip), Some(hostname)) = (h.get("ip").and_then(|v| v.as_str()), h.get("hostname").and_then(|v| v.as_str())) {
+                            map.insert(hostname.to_string(), serde_json::Value::String(ip.to_string()));
+                        }
+                    }
+                    serde_json::Value::Object(map)
+                })
+                .unwrap_or_else(|| serde_json::Value::Object(serde_json::Map::new()));
+
+            let result = serde_json::json!({
+                "current_profile": name,
+                "platform": std::env::consts::OS,
+                "proxy": {
+                    "http_proxy": http_proxy,
+                    "https_proxy": https_proxy,
+                    "no_proxy": no_proxy,
+                },
+                "dns": {"servers": dns_servers},
+                "hosts": hosts_map,
+                "backup": {"count": 0, "latest": ""},
+            });
+            return serde_json::to_string(&result).map_err(|e| format!("JSON error: {}", e));
+        }
+    }
+
+    let result = serde_json::json!({
+        "current_profile": "",
+        "platform": std::env::consts::OS,
+        "proxy": {"http_proxy": "", "https_proxy": "", "no_proxy": ""},
+        "dns": {"servers": []},
+        "hosts": {},
+        "backup": {"count": 0, "latest": ""},
+    });
+    serde_json::to_string(&result).map_err(|e| format!("JSON error: {}", e))
 }
 
 #[tauri::command]
 fn switch_profile(name: String) -> Result<String, String> {
     run_net_switch(&["use", &name])?;
     ensure_localhost_proxy_bypass();
+    if let Ok(mut active) = ACTIVE_PROFILE.lock() {
+        *active = name.clone();
+    }
     Ok(format!("Switched to profile: {}", name))
 }
 
@@ -329,8 +474,24 @@ fn read_config() -> Result<String, String> {
 #[tauri::command]
 fn write_config(content: String) -> Result<(), String> {
     let config_path = find_config_file()?;
-    std::fs::write(&config_path, content)
-        .map_err(|e| format!("Cannot write config: {}", e))
+    std::fs::write(&config_path, &content)
+        .map_err(|e| format!("Cannot write config: {}", e))?;
+
+    if let Ok(mut active) = ACTIVE_PROFILE.lock() {
+        if !active.is_empty() {
+            let profile_exists = serde_yaml::from_str::<serde_yaml::Value>(&content)
+                .ok()
+                .and_then(|v| v.get("profiles").cloned())
+                .and_then(|v| v.as_sequence().cloned())
+                .map(|seq| seq.iter().any(|p| p.get("name").and_then(|n| n.as_str()) == Some(&*active)))
+                .unwrap_or(false);
+            if !profile_exists {
+                *active = String::new();
+            }
+        }
+    }
+
+    Ok(())
 }
 
 fn find_config_file() -> Result<String, String> {
