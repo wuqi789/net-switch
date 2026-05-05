@@ -34,6 +34,8 @@ export default function ConfigEditor({ onSave }: ConfigEditorProps) {
       await invoke("write_config", { content: config });
       setSaved(true);
       onSave();
+      const fresh = await invoke<string>("read_config");
+      setConfig(fresh);
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {
       setError(String(e));

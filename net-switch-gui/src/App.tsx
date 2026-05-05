@@ -23,12 +23,13 @@ export default function App() {
     switchProfile,
     dryRunSwitch,
     refreshAll,
+    initWithDefault,
     clearError,
   } = useNetSwitch();
 
   useEffect(() => {
-    refreshAll();
-  }, [refreshAll]);
+    initWithDefault();
+  }, [initWithDefault]);
 
   const navItems: { id: Tab; label: string; icon: string }[] = [
     { id: "overview", label: "概览", icon: "◉" },

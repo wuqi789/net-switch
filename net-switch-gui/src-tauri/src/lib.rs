@@ -89,6 +89,7 @@ fn ensure_default_config() {
     let content = default_config.unwrap_or_else(|| {
         concat!(
             "version: \"1\"\n",
+            "default_profile: direct\n",
             "profiles:\n",
             "  - name: direct\n",
             "    description: \"直连（无代理）\"\n",

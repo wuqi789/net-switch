@@ -111,6 +111,32 @@ export function useNetSwitch() {
     setLoading(false);
   }, [fetchProfiles, fetchCurrent, fetchStatus]);
 
+  const initWithDefault = useCallback(async () => {
+    setLoading(true);
+    try {
+      await fetchProfiles();
+      const result = await invoke<string>("get_current");
+      const data = JSON.parse(result);
+      setCurrent(data && typeof data === "object" ? data : null);
+
+      const profileName = data?.current_profile;
+      if (profileName) {
+        try {
+          await invoke("switch_profile", { name: profileName });
+          addLog("info", "自动激活", `已自动激活默认 Profile: ${profileName}`);
+        } catch {
+          // switch may fail if profile doesn't exist, not critical
+        }
+      }
+
+      await fetchStatus();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchProfiles, fetchStatus, addLog]);
+
   return {
     profiles,
     current,
@@ -121,6 +147,7 @@ export function useNetSwitch() {
     switchProfile,
     dryRunSwitch,
     refreshAll,
+    initWithDefault,
     clearError: () => setError(null),
   };
 }
