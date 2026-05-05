@@ -184,16 +184,6 @@ fn ensure_default_profiles(config_path: &std::path::Path) {
         }
     }
 
-    if config.get("default_profile").and_then(|v| v.as_str()).unwrap_or("").is_empty() {
-        if let Some(mapping) = config.as_mapping_mut() {
-            mapping.insert(
-                serde_yaml::Value::String("default_profile".into()),
-                serde_yaml::Value::String("direct".into()),
-            );
-            needs_update = true;
-        }
-    }
-
     if needs_update {
         if let Ok(updated) = serde_yaml::to_string(&config) {
             let _ = std::fs::write(config_path, updated);
