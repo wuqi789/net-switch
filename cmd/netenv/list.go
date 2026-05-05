@@ -3,13 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/netenv/netenv/internal/config"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 var listCmd = &cobra.Command{
@@ -31,16 +28,10 @@ var listCmd = &cobra.Command{
 		}
 
 		if outputFmt == "json" {
-			profilesDir := config.GetProfilesDir()
 			var profiles []map[string]interface{}
 			for _, name := range profileNames {
-				profilePath := filepath.Join(profilesDir, name+".yaml")
-				data, err := os.ReadFile(profilePath)
+				p, err := config.LoadProfile("", name)
 				if err != nil {
-					continue
-				}
-				var p config.Profile
-				if err := yaml.Unmarshal(data, &p); err != nil {
 					continue
 				}
 				noProxy := ""
@@ -56,6 +47,10 @@ var listCmd = &cobra.Command{
 					"has_dns":     p.DNS.Enabled,
 					"hosts_count": len(p.Hosts.Entries),
 				})
+			}
+			if profiles == nil {
+				fmt.Println("[]")
+				return nil
 			}
 			output, _ := json.Marshal(profiles)
 			fmt.Println(string(output))

@@ -29,12 +29,14 @@ export function useNetSwitch() {
     try {
       const result = await invoke<string>("get_profiles");
       const data = JSON.parse(result);
-      setProfiles(data);
-      addLog("info", "加载 Profile", `成功加载 ${data.length} 个 Profile`);
+      const list = Array.isArray(data) ? data : [];
+      setProfiles(list);
+      addLog("info", "加载 Profile", `成功加载 ${list.length} 个 Profile`);
     } catch (e) {
       const msg = String(e);
+      setProfiles([]);
       if (msg.includes("no profiles") || msg.includes("not found")) {
-        setProfiles([]);
+        // normal: no profiles yet
       } else {
         setError(msg);
         addLog("error", "加载 Profile 失败", msg);
@@ -46,9 +48,10 @@ export function useNetSwitch() {
     try {
       const result = await invoke<string>("get_current");
       const data = JSON.parse(result);
-      setCurrent(data);
+      setCurrent(data && typeof data === "object" ? data : null);
     } catch (e) {
       const msg = String(e);
+      setCurrent(null);
       if (!msg.includes("not set")) {
         setError(msg);
       }
@@ -59,9 +62,10 @@ export function useNetSwitch() {
     try {
       const result = await invoke<string>("get_status");
       const data = JSON.parse(result);
-      setStatus(data);
+      setStatus(data && typeof data === "object" ? data : null);
     } catch (e) {
       const msg = String(e);
+      setStatus(null);
       if (!msg.includes("no profiles") && !msg.includes("not found")) {
         setError(msg);
       }
