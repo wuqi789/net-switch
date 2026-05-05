@@ -6,7 +6,6 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/netenv/netenv/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -14,13 +13,6 @@ var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Show current system status as JSON",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.LoadConfig(configFile)
-		if err != nil {
-			return fmt.Errorf("failed to load config: %w", err)
-		}
-
-		currentProfile := cfg.Global.DefaultProfile
-
 		proxyStatus := map[string]string{
 			"http_proxy":  os.Getenv("HTTP_PROXY"),
 			"https_proxy": os.Getenv("HTTPS_PROXY"),
@@ -43,7 +35,7 @@ var statusCmd = &cobra.Command{
 		}
 
 		result := map[string]interface{}{
-			"current_profile": currentProfile,
+			"current_profile": "",
 			"platform":        runtime.GOOS,
 			"proxy":           proxyStatus,
 			"dns":             map[string]interface{}{"servers": []string{}},

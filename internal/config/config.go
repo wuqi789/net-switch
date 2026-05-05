@@ -38,13 +38,12 @@ type Config struct {
 }
 
 type ConfigFile struct {
-	Version        string               `yaml:"version"`
-	DefaultProfile string               `yaml:"default_profile,omitempty"`
-	LogLevel       string               `yaml:"log_level,omitempty"`
-	Color          *bool                `yaml:"color,omitempty"`
-	Backup         *BackupConfig        `yaml:"backup,omitempty"`
-	Plugins        *PluginsGlobalConfig `yaml:"plugins,omitempty"`
-	Profiles       []Profile            `yaml:"profiles,omitempty"`
+	Version  string               `yaml:"version,omitempty"`
+	LogLevel string               `yaml:"log_level,omitempty"`
+	Color    *bool                `yaml:"color,omitempty"`
+	Backup   *BackupConfig        `yaml:"backup,omitempty"`
+	Plugins  *PluginsGlobalConfig `yaml:"plugins,omitempty"`
+	Profiles []Profile            `yaml:"profiles,omitempty"`
 }
 
 func LoadConfig(configPath string) (*Config, error) {
@@ -69,9 +68,6 @@ func LoadConfig(configPath string) (*Config, error) {
 
 	if cf.Version != "" {
 		gc.Version = cf.Version
-	}
-	if cf.DefaultProfile != "" {
-		gc.DefaultProfile = cf.DefaultProfile
 	}
 	if cf.LogLevel != "" {
 		gc.LogLevel = cf.LogLevel

@@ -52,11 +52,6 @@ var switchCmd = &cobra.Command{
 			return nil
 		}
 
-		cfg.Global.DefaultProfile = profileName
-		if err := config.SaveGlobalConfig("", cfg.Global); err != nil {
-			printWarning("Failed to save active profile: %v", err)
-		}
-
 		printSuccess(result.Message)
 		for _, step := range result.Steps {
 			fmt.Printf("  ✓ %s: %s\n", step.Name, step.Message)

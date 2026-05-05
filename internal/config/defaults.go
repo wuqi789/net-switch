@@ -13,12 +13,11 @@ var (
 )
 
 type GlobalConfig struct {
-	Version        string             `yaml:"version"`
-	DefaultProfile string             `yaml:"default_profile,omitempty"`
-	LogLevel       string             `yaml:"log_level"`
-	Color          bool               `yaml:"color"`
-	Backup         BackupConfig       `yaml:"backup"`
-	Plugins        PluginsGlobalConfig `yaml:"plugins"`
+	Version string             `yaml:"version"`
+	LogLevel string             `yaml:"log_level"`
+	Color    bool               `yaml:"color"`
+	Backup   BackupConfig       `yaml:"backup"`
+	Plugins  PluginsGlobalConfig `yaml:"plugins"`
 }
 
 type BackupConfig struct {
@@ -34,10 +33,9 @@ type PluginsGlobalConfig struct {
 
 func DefaultGlobalConfig() *GlobalConfig {
 	return &GlobalConfig{
-		Version:        "1",
-		DefaultProfile: "",
-		LogLevel:       "info",
-		Color:          true,
+		Version:  "1",
+		LogLevel: "info",
+		Color:    true,
 		Backup: BackupConfig{
 			Enabled:    true,
 			MaxHistory: 20,
