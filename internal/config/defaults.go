@@ -4,6 +4,12 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
+)
+
+var (
+	configPathOverride string
+	configPathOnce     sync.Once
 )
 
 type GlobalConfig struct {
@@ -96,6 +102,15 @@ func GetStateDir() string {
 	return filepath.Join(GetNetenvDir(), "state")
 }
 
+func SetConfigFilePath(path string) {
+	if path != "" {
+		configPathOverride = path
+	}
+}
+
 func GetConfigFilePath() string {
+	if configPathOverride != "" {
+		return configPathOverride
+	}
 	return filepath.Join(GetNetenvDir(), "config.yaml")
 }

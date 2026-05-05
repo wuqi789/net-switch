@@ -34,11 +34,13 @@ jobs:
       - name: Build Go CLI
         run: go build -ldflags "-s -w" -o net-switch-gui/src-tauri/resources/net-switch.exe ./cmd/netenv/
 
-      - name: Copy config file
+      - name: Verify bundled config
         run: |
           if (!(Test-Path "net-switch-gui/src-tauri/resources/config.default.yaml")) {
-            Copy-Item config.default.yaml -Destination net-switch-gui/src-tauri/resources/config.default.yaml
+            Write-Error "config.default.yaml not found in resources directory"
+            exit 1
           }
+          Write-Host "config.default.yaml found in resources directory"
 
       - name: Install dependencies
         run: cd net-switch-gui && npm ci
@@ -101,6 +103,14 @@ jobs:
 
       - name: Build Go CLI
         run: GOOS=darwin GOARCH=${{ matrix.goarch }} go build -ldflags "-s -w" -o net-switch-gui/src-tauri/resources/net-switch ./cmd/netenv/
+
+      - name: Verify bundled config
+        run: |
+          if [ ! -f "net-switch-gui/src-tauri/resources/config.default.yaml" ]; then
+            echo "ERROR: config.default.yaml not found in resources directory"
+            exit 1
+          fi
+          echo "config.default.yaml found in resources directory"
 
       - name: Install dependencies
         run: cd net-switch-gui && npm ci

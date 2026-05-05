@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/netenv/netenv/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +20,11 @@ var rootCmd = &cobra.Command{
 	Use:   "netenv",
 	Short: "Developer network environment switch tool",
 	Long:  "NetEnv - A modern, cross-platform, extensible network environment switch tool for developers.",
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if configFile != "" {
+			config.SetConfigFilePath(configFile)
+		}
+	},
 }
 
 func init() {

@@ -9,17 +9,19 @@ fn net_switch_dir() -> Option<PathBuf> {
         .and_then(|p| p.parent().map(|pp| pp.to_path_buf()))
         .unwrap_or_else(|| std::env::current_dir().unwrap_or_default());
 
-    let resource_dir = base.join("resources");
-    if resource_dir.join(exe_name).exists() {
-        return Some(resource_dir);
-    }
+    let search_dirs = vec![
+        base.join("resources"),
+        base.join("../Resources"),
+        base.join("../resources"),
+        base.join("../../../net-switch"),
+        base.join("../../../../net-switch"),
+        base.join("../../net-switch"),
+        base.join("../net-switch"),
+    ];
 
-    let offsets = ["../../../net-switch", "../../../../net-switch", "../../net-switch", "../net-switch"];
-
-    for offset in &offsets {
-        let dir = base.join(offset);
+    for dir in &search_dirs {
         if dir.join(exe_name).exists() {
-            return dir.canonicalize().ok().or(Some(dir));
+            return dir.canonicalize().ok().or_else(|| Some(dir.clone()));
         }
     }
     None
@@ -87,8 +89,8 @@ profiles:
 
   - name: vpn
     description: "VPN 环境"
-    http_proxy: "socks5://127.0.0.1:7897"
-    https_proxy: "socks5://127.0.0.1:7897"
+    http_proxy: "socks5://127.0.0.1:1080"
+    https_proxy: "socks5://127.0.0.1:1080"
     no_proxy: "localhost,127.0.0.1"
     dns:
       servers:
